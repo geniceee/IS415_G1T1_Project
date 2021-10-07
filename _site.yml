@@ -1,0 +1,12 @@
+name: "IS415_G1T1_Project"
+title: "IS415 AY21-22 G1T1"
+description: |
+  IS415 AY21-22 G1T1
+output_dir: "_site"
+navbar:
+  right:
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+output: distill::distill_article

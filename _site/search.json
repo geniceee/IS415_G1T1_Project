@@ -1,0 +1,21 @@
+{
+  "articles": [
+    {
+      "path": "about.html",
+      "title": "About this site",
+      "description": "Some additional details about the website",
+      "author": [],
+      "contents": "\r\n\r\n\r\n\r\n",
+      "last_modified": "2021-10-07T15:56:31+08:00"
+    },
+    {
+      "path": "index.html",
+      "title": "IS415 AY21-22 G1T1",
+      "description": "Welcome to the website. I hope you enjoy it!\n",
+      "author": [],
+      "contents": "\r\n\r\n\r\n\r\n",
+      "last_modified": "2021-10-07T15:56:32+08:00"
+    }
+  ],
+  "collections": []
+}
