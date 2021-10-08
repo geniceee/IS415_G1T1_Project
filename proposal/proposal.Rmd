@@ -78,3 +78,49 @@ Some of the packages that we will be looking at when building these Spatial Inte
 ![](img/Project Timeline.JPG)
 
 
+# Application System Architecture
+
+![](img/architecture-diagram.JPG)
+
+
+# Early Storyboards
+
+![](img/prototype-about.JPG)
+
+![](img/prototype-eda-categorical.JPG)
+
+![](img/prototype-eda-discrete.JPG)
+
+![](img/prototype-eda-network.JPG)
+
+![](img/prototype-sim.JPG)
+
+
+# References
+- Motivation:
+    - https://www.channelnewsasia.com/commentary/public-transport-mrt-bus-capacity-breakdown-covid-car-share-968131
+    - https://www.mot.gov.sg/Transport-Matters/public-transport/Detail/spreading-out-the-peak-hour-mrt-crowd
+    - https://www.lta.gov.sg/content/ltagov/en/newsroom/2014/7/3/steps-taken-to-reduce-bus-crowding-during-peak-hours.html
+    - https://www.ptc.gov.sg/fare-regulation/bus-rail/morning-pre-peak-fares
+
+- Project proposals:
+    - https://brave-bhaskara-fc4519.netlify.app/
+    - https://is415-t14-project-proposal.netlify.app/home/project_proposal/
+    - https://healthheroes.netlify.app/proposal/
+
+- Project Proposals:
+    - https://docs.ropensci.org/stplanr/
+    - https://cran.r-project.org/web/packages/stplanr/vignettes/stplanr-od.html
+    - https://geocompr.robinlovelace.net/transport.html#nodes
+    - https://digitised-collections.unimelb.edu.au/bitstream/handle/11343/233564/Modelling%20population%20flows%20using%20spatial%20interaction%20models.pdf?sequence=1&isAllowed=y
+
+- Definitions of Origin Constrained, Destination Constrained and Doubly Constrained models: 
+    - https://www.sciencedirect.com/topics/computer-science/spatial-interaction-model
+
+- Relevant Projects
+    - https://nz-stefan.shinyapps.io/commute-explorer-2/
+    - https://wiki.smu.edu.sg/1920t2isss608/Group08_application
+
+- Research papers:
+    - https://ink.library.smu.edu.sg/cgi/viewcontent.cgi?article=2760&context=sis_research
+
