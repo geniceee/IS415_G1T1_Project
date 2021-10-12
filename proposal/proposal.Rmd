@@ -54,21 +54,21 @@ The cons of these two applications are as follows:
 
 In our project, we will implement Spatial Interaction Models. Spatial Interaction Models aim to explain commuter flows from the spatial perspective. Commuter flows are regarded as an interaction between origins and destinations. 
 
-**Unconstrained Spatial Interaction Model**
-Both Origin and Destinations are unknown and therefore does not have any spatial configurations of origins and destinations
-Ensures that the predicted number of flows is equal to the known flows
+- **Unconstrained Spatial Interaction Model**
+    - Both Origin and Destinations are unknown and therefore does not have any spatial configurations of origins and destinations
+    - Ensures that the predicted number of flows is equal to the known flows
 
-**Origin Constrained Spatial Interaction Model**
-Here, Origin is known and Destination is unknown
-Deals with outgoing flows in terms of ensuring that the sum of the estimated outflows observed outflows from each origin is the same 
+- **Origin Constrained Spatial Interaction Model**
+    - Here, Origin is known and Destination is unknown
+    - Deals with outgoing flows in terms of ensuring that the sum of the estimated outflows observed outflows from each origin is the same 
 
-**Destination Constrained Spatial Interaction Model**
-Here, Destination is known and Origin is unknown
-Deals with incoming flows in terms of ensuring that the sum of the estimated and observed inflows for each destination is the same
+- **Destination Constrained Spatial Interaction Model**
+    - Here, Destination is known and Origin is unknown
+    - Deals with incoming flows in terms of ensuring that the sum of the estimated and observed inflows for each destination is the same
 
-**Doubly Constrained Spatial Interaction Model**
-Both Origin and Destinations are known
-Ensures that both of these pairs of sums are the same
+- **Doubly Constrained Spatial Interaction Model**
+    - Both Origin and Destinations are known
+    - Ensures that both of these pairs of sums are the same
 
 Some of the packages that we will be looking at when building these Spatial Interaction Models are stplanr and simR. 
 
@@ -87,9 +87,9 @@ Some of the packages that we will be looking at when building these Spatial Inte
 
 ![](img/prototype-about.JPG)
 
-![](img/prototype-eda-categorical.JPG)
+![](img/prototype-eda-spatialpoints.JPG)
 
-![](img/prototype-eda-discrete.JPG)
+![](img/prototype-eda-spatialtemporalpattern.JPG)
 
 ![](img/prototype-eda-network.JPG)
 
@@ -97,18 +97,14 @@ Some of the packages that we will be looking at when building these Spatial Inte
 
 
 # References
+
 - Motivation:
     - https://www.channelnewsasia.com/commentary/public-transport-mrt-bus-capacity-breakdown-covid-car-share-968131
     - https://www.mot.gov.sg/Transport-Matters/public-transport/Detail/spreading-out-the-peak-hour-mrt-crowd
     - https://www.lta.gov.sg/content/ltagov/en/newsroom/2014/7/3/steps-taken-to-reduce-bus-crowding-during-peak-hours.html
     - https://www.ptc.gov.sg/fare-regulation/bus-rail/morning-pre-peak-fares
 
-- Project proposals:
-    - https://brave-bhaskara-fc4519.netlify.app/
-    - https://is415-t14-project-proposal.netlify.app/home/project_proposal/
-    - https://healthheroes.netlify.app/proposal/
-
-- Project Proposals:
+- Packages:
     - https://docs.ropensci.org/stplanr/
     - https://cran.r-project.org/web/packages/stplanr/vignettes/stplanr-od.html
     - https://geocompr.robinlovelace.net/transport.html#nodes
@@ -120,6 +116,9 @@ Some of the packages that we will be looking at when building these Spatial Inte
 - Relevant Projects
     - https://nz-stefan.shinyapps.io/commute-explorer-2/
     - https://wiki.smu.edu.sg/1920t2isss608/Group08_application
+    - https://brave-bhaskara-fc4519.netlify.app/
+    - https://is415-t14-project-proposal.netlify.app/home/project_proposal/
+    - https://healthheroes.netlify.app/proposal/
 
 - Research papers:
     - https://ink.library.smu.edu.sg/cgi/viewcontent.cgi?article=2760&context=sis_research

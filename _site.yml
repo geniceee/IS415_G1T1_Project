@@ -9,4 +9,6 @@ navbar:
       href: proposal/proposal.html
     - text: "About"
       href: about.html
+    - text: "Github"
+      href: https://github.com/geniceee/IS415_G1T1_Project
 output: distill::distill_article
