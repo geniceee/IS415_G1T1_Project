@@ -1,15 +1,11 @@
 ---
 title: "IS415 AY21-22 G1T1"
 description: |
-  Welcome to the website. I hope you enjoy it!
+  This project is done for IS415 Geospatial Analytics & Application (SMU-X), a module in Singapore Management University (SMU) with the guidance of Professor Kam Tin Seong.
 site: distill::distill_website
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-
-# Learn more about creating websites with Distill at:
-# https://rstudio.github.io/distill/website.html
-
 ```
 

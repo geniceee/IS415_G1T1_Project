@@ -1,20 +1,12 @@
 {
   "articles": [
     {
-      "path": "about.html",
-      "title": "About this site",
-      "description": "Some additional details about the website",
-      "author": [],
-      "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-10-12T15:20:05+08:00"
-    },
-    {
       "path": "index.html",
       "title": "IS415 AY21-22 G1T1",
-      "description": "Welcome to the website. I hope you enjoy it!\n",
+      "description": "This project is done for IS415 Geospatial Analytics & Application (SMU-X), a module in Singapore Management University (SMU) with the guidance of Professor Kam Tin Seong.\n",
       "author": [],
       "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-10-12T15:20:07+08:00"
+      "last_modified": "2021-10-12T15:57:45+08:00"
     }
   ],
   "collections": []

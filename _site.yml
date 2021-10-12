@@ -1,9 +1,13 @@
-name: "IS415_G1T1_Project"
-title: "IS415 AY21-22 G1T1"
+name: "FloSG"
+title: "FloSG"
+theme: theme.css
 description: |
   IS415 AY21-22 G1T1
 output_dir: "_site"
 navbar:
+  logo: 
+    image: logo.jpg
+    href: index.html
   right:
     - text: "Project Proposal"
       href: proposal/proposal.html
