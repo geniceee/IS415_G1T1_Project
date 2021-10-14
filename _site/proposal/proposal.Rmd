@@ -89,7 +89,7 @@ Some of the packages that we will be looking at when building these Spatial Inte
 
 ![](img/prototype-eda-spatialpoints.JPG)
 
-![](img/prototype-eda-spatialtemporalpattern.JPG)
+![](img/prototype-eda-choropleth.JPG)
 
 ![](img/prototype-eda-network.JPG)
 
