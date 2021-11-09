@@ -42,15 +42,43 @@ mpsz_sf <- st_make_valid(mpsz_sf)
 omit_bus <- list(46211, 46219, 46239, 46609, 47701)
 bus_sf <- bus_sf[!bus_sf$BUS_STOP_N %in% omit_bus, ]
 
+
+## Read in OD pop data
 od_pop_sz <- read_csv("data/aspatial/od_pop_sz.csv")
 print(od_pop_sz)
 
 
+## Read in OD all data
+od_sz <- read_csv("data/aspatial/od_sz_data.csv")
+print(od_sz)
+
+### 7.5.3 Check for NA values
+od_sz[rowSums(is.na(od_sz))!=0,]
+
+### 7.5.4 Set intra-zonal distances to smaller value
+od_sz$dist <- ifelse(od_sz$dist == 0,5,od_sz$dist)
+glimpse(od_sz)
+
+### 7.5.5 Remove intra-zonal flows
+df_inter <- od_sz[od_sz$ORIGIN_SZ_C != od_sz$DEST_SZ_C, ]
+
+## Unconstrained
+uncosim <- glm(TRIPS ~ log(O_TOTAL_POP) + log(D_MONTHLY_INCOME) + log(dist),
+               na.action = na.exclude, family = poisson(link = "log"), 
+               data = df_inter)
+df_inter$fitted <- round(fitted(uncosim),0)
+
 
 ### Configuration ###
-ui <- fluidPage(
-    
-    tabPanel("EDA", fluid = TRUE),
+ui <- fluidPage(theme = shinytheme("simplex"),
+                useShinyjs(),
+                # Navigation Bar
+                navbarPage(
+                    title = div(img(src = '../logo.JPG', style = "margin-top: 0px; padding-right:6px;padding-bottom:20px", height = 55)),
+                    windowTitle = "FloSG",
+                    collapsible = TRUE,
+    # EDA
+    tabPanel("EDA", fluid = TRUE,
         sidebarLayout(
             sidebarPanel(
                 
@@ -123,7 +151,7 @@ ui <- fluidPage(
                 ) # 2nd conditionalPanel
                 
             ), #sidebarPanel
-                
+          
             
             mainPanel(
                 tabsetPanel(
@@ -136,7 +164,41 @@ ui <- fluidPage(
             )
             
             
-    )#sidebarLayout
+        ) #1st sidebarLayout
+    ), # 1st tabPanel
+    
+    
+    # Spatial Interaction Model
+    tabPanel("SIM", fluid = TRUE,
+        sidebarLayout(
+            sidebarPanel(
+
+                # Unconstrained
+                conditionalPanel(
+                    'input.SIM_var === "Unconstrained"',
+                    selectInput(inputId = "colour_unmap",
+                                label = "Colour of Points",
+                                choices = c("blue" = "blue",
+                                            "green" = "green",
+                                            "red" = "red"),
+                                selected = "blue")
+                ) # 1st conditionalPanel
+
+            ), # 2nd sidebarPanel
+
+            mainPanel(
+                tabsetPanel(
+                    id="SIM_var",
+                    tabPanel("Unconstrained", plotOutput(outputId = "un_map"))
+                    # DT::dataTableOutput(outputId = "aTable")
+                    )
+    
+                )
+
+            ) # 2nd sidebarLayout
+        ) # 2nd tabPanel
+
+    )#navbarPage
     
 )#fluidpage
 
@@ -200,6 +262,14 @@ server <- function(input, output){
             cmap_list[[i]] <- cmap
         }
         do.call(tmap_arrange, cmap_list)
+    })
+    
+    # SIM
+    output$un_map <- renderPlot({
+        ggplot(data=df_inter, 
+               aes(y = `TRIPS`, 
+                   x = `fitted`))+
+            geom_point(color=input$colour_unmap)
     })
     
 }
