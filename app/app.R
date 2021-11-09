@@ -77,6 +77,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                     title = div(img(src = '../logo.JPG', style = "margin-top: 0px; padding-right:6px;padding-bottom:20px", height = 55)),
                     windowTitle = "FloSG",
                     collapsible = TRUE,
+<<<<<<< HEAD
                     # EDA
                     tabPanel("EDA", fluid = TRUE,
                              sidebarLayout(
@@ -166,6 +167,66 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                  
                              ) #1st sidebarLayout
                     ), # 1st tabPanel
+=======
+    # EDA
+    tabPanel("EDA", fluid = TRUE,
+        sidebarLayout(
+            sidebarPanel(
+                
+                # Spatial Point Map of Bus Stops
+                conditionalPanel(
+                    'input.EDA_var === "Spatial Points"',
+                    selectInput(inputId = "colour_pmap",
+                                label = "Colour of Points",
+                                choices = c("blue" = "blue",
+                                            "green" = "green",
+                                            "red" = "red"),
+                                selected = "blue"),
+                    
+                    sliderInput(inputId = "alpha",
+                                label = "Transparency of Points",
+                                min = 0.3,
+                                max = 1,
+                                value = c(0.4)),
+                    sliderInput(inputId = "size",
+                                label = "Size of Points",
+                                min = 0.01,
+                                max = 0.1,
+                                value = c(0.03))
+                ), # 1st conditionalPanel
+                
+                # Choropleth
+                conditionalPanel(
+                    'input.EDA_var === "Choropleth Maps',
+                    selectInput(inputId = "classification",
+                                label = "Classification method",
+                                choices = c("fixed" = "fixed",
+                                               "sd" = "sd",
+                                               "equal" = "equal",
+                                               "pretty" = "pretty",
+                                               "quantile" = "quantile",
+                                               "kmeans" = "kmeans",
+                                               "hclust" = "hclust",
+                                               "bclust" = "bclust",
+                                               "fisher" = "fisher",
+                                               "jenks" = "jenks"),
+                                selected = "pretty"), 
+                    selectInput(inputId = "colour_cmap",
+                                label = "Colour scheme",
+                                choices = c("blues" = "Blues",
+                                               "reds" = "Reds",
+                                               "greens" = "Greens",
+                                               "Yellow-Orange-Red" = "YlOrRd",
+                                               "Yellow-Orange-Brown" = "YlOrBr",
+                                               "Yellow-Green" = "YlGn",
+                                               "Orange-Red" = "OrRd"),
+                                selected = "YlOrRd"),
+                    selectInput(inputId = "o_d",
+                                label = "Origin/Destination:",
+                                choices = c("Origin" = "ORIGIN_SZ_C",
+                                               "Destination" = "DEST_SZ_C"),
+                                selected = "ORIGIN_SZ_C"),
+>>>>>>> 5afb581bc0afa5c9965d9eec39015477d411868d
                     
                     
                     # Spatial Interaction Model
@@ -198,8 +259,63 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                              ) # 2nd sidebarLayout
                     ) # 2nd tabPanel
                     
+<<<<<<< HEAD
                 )#navbarPage
                 
+=======
+                ) # 2nd conditionalPanel
+                
+            ), #sidebarPanel
+          
+            
+            mainPanel(
+                tabsetPanel(
+                    id="EDA_var",
+                    tabPanel("Spatial Points", tmapOutput("pt_bus_stop")),
+                    # DT::dataTableOutput(outputId = "aTable") 
+                    tabPanel("Choropleth Maps", plotOutput(outputId =  "cmap"))
+                )
+
+            )
+            
+            
+        ) #1st sidebarLayout
+    ), # 1st tabPanel
+    
+    
+    # Spatial Interaction Model
+    tabPanel("SIM", fluid = TRUE,
+        sidebarLayout(
+            sidebarPanel(
+
+                # Unconstrained
+                conditionalPanel(
+                    'input.SIM_var === "Unconstrained"',
+                    selectInput(inputId = "colour_unmap",
+                                label = "Colour of Points",
+                                choices = c("blue" = "blue",
+                                            "green" = "green",
+                                            "red" = "red"),
+                                selected = "blue")
+                ) # 1st conditionalPanel
+
+            ), # 2nd sidebarPanel
+
+            mainPanel(
+                tabsetPanel(
+                    id="SIM_var",
+                    tabPanel("Unconstrained", plotOutput(outputId = "un_map"))
+                    # DT::dataTableOutput(outputId = "aTable")
+                    )
+    
+                )
+
+            ) # 2nd sidebarLayout
+        ) # 2nd tabPanel
+
+    )#navbarPage
+    
+>>>>>>> 5afb581bc0afa5c9965d9eec39015477d411868d
 )#fluidpage
 
 
