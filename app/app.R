@@ -252,7 +252,22 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                  mainPanel(
                                      tabsetPanel(
                                          id="SIM_var",
-                                         tabPanel("SIM", plotOutput(outputId = "sim"))
+                                         tabPanel("SIM", plotOutput(outputId = "sim"),
+                                                  tabsetPanel(
+                                                      tabPanel(
+                                                          "SIM Summary", verbatimTextOutput(outputId = "sim_summary")
+                                                      ),
+                                                      tabPanel(
+                                                          "Original Matrix", tableOutput(outputId = "original_matrix")
+                                                      ),
+                                                      tabPanel(
+                                                          "SIM Matrix", tableOutput(outputId = "sim_matrix")
+                                                      )
+                                                  ),
+                                                  "SIM Results", verbatimTextOutput(outputId = "sim_results")
+                                            )
+                                         
+
                                          # DT::dataTableOutput(outputId = "aTable")
                                      )
                                      
@@ -345,15 +360,26 @@ server <- function(input, output){
         }
         
         # print(summary(sim))
+        output$sim_summary <- renderPrint({
+            summary(sim)
+        })
         
         df_inter$simFitted <- round(fitted(sim),0)
-        #print(sum(df$simFitted))
 
         # Original
         df_matrix <- dcast(df_inter, ORIGIN_SZ_C ~ DEST_SZ_C, sum, value.var = "TRIPS", margins=c("ORIGIN_SZ_C", "DEST_SZ_C"))
-
+        
+        output$original_matrix <- renderTable({
+            head(df_matrix, 10)
+        })
+        
         # SIM
         df_matrix_sim <- dcast(df_inter, ORIGIN_SZ_C ~ DEST_SZ_C, sum, value.var = "simFitted", margins=c("ORIGIN_SZ_C", "DEST_SZ_C"))
+        
+        output$sim_matrix <- renderTable({
+            head(df_matrix_sim, 10)
+        })
+        
 
         print(df_matrix)
         print(df_matrix_sim)
@@ -363,8 +389,11 @@ server <- function(input, output){
                          x = `simFitted`))+
                   geom_point(color=input$colour_sim, fill="light blue"))
 
-        print('Assess Model Performance:' )
-        print(postResample(df_inter$TRIPS, df_inter$simFitted))
+        
+        output$sim_results <- renderPrint({
+            postResample(df_inter$TRIPS, df_inter$simFitted)
+        })
+        
 
     })
     
