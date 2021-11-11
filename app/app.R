@@ -77,6 +77,78 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                     title = div(img(src = '../logo.JPG', style = "margin-top: 0px; padding-right:6px;padding-bottom:20px", height = 55)),
                     windowTitle = "FloSG",
                     collapsible = TRUE,
+                    
+                    # About 
+                    tabPanel("About", fluid = TRUE,
+                             sidebarLayout(
+                                 sidebarPanel(h3(strong("FloSG"), style = "color: #ff4d4d"),
+                                              br(),
+                                              
+                                              # img(src="../smu.JPG", height = 300),
+                                              # imageOutput("www/smu.png", width = 3),
+                                              
+                                              h4("A Group Project by:"),
+                                                tags$ul(
+                                                    tags$li(a(href="https://www.linkedin.com/in/genice-goh/", "Genice Goh"), style = "font-size: 16px;"),
+                                                    tags$li(a(href="https://www.linkedin.com/in/nor-aisyah/", "Nor Aisyah"), style = "font-size: 16px;"),
+                                                    tags$li(a(href="https://www.linkedin.com/in/wei-ling-wong-a84130131/", "Wong Wei Ling"), style = "font-size: 16px;")
+                                                ),
+                                              br(),
+                                              
+                                              h5("Guided by Professor Kam Tin Seong for IS415 Geospatial Analytics and Applications")
+                                              
+                                              ), 
+                                 
+                                 mainPanel(h3("Project Motivation"),
+                                           fluidRow(
+                                               column(10, 
+                                                      h4("There is presently no analytics application that looks at public transportation commuter patterns across time and space.
+                                                         We hope that creating this application can bring benefits to multiple stakeholders:
+                                                         by allowing commuters to better plan their journeys, workplaces to effectively implement flexible working hours,
+                                                         and the relevant governmental organisations to implement measures to address peak hour crowds."),
+                                                      br(),
+                                                      h4("Since the pandemic, even though there are people who are less willing to take the public transport, there is still a
+                                                         crowd in ridership at certain times. An example would be when Mass Rapid Transport (MRT) services broke down in October 2020,
+                                                         this resulted in bus stops being packed with commuters looking for alternatives to get home. This is a cause for concern for
+                                                         commuters who are conscious of COVID-19 risks as it is tough to maintain a safe distance from everyone around them."),
+                                                      br(),
+                                                      h4("The government has implemented measures to address peak hour crowds, including increasing the frequency of buses and trains
+                                                         during these periods. While this does solve the issue, we wonder about the sustainability of increasing the frequency of
+                                                         public transport - particularly buses, when public transportation ridership is going to increase over the years."))
+                                           ), # fluid row
+                                           
+                                           h3("Project Objectives"),
+                                           h4("In our project, we will build an application to investigate commuter patterns for bus services across time and space and how they contribute to peak hour crowds."),
+                                           h4("Namely, we wish to cover the following areas:"),
+                                           tags$ul(
+                                               h4(tags$li("Identify the areas that have the most people travelling to and from (across time)")),
+                                               h4(tags$li("Visualise modelling results of potential results")),
+                                               
+                                               tags$ol(
+                                                   h4(tags$li("Unconstrained Spatial Interaction Model")),
+                                                   h4(tags$li("Origin Constrained Spatial Interaction Model")),
+                                                   h4(tags$li("Destination Constrained Spatial Interaction Model")),
+                                                   h4(tags$li("Doubly Constrained Spatial Interaction Model"))
+                                               )
+                                           ),
+                                           h4("We will then analyse and interpret the output, and then conclude the project with our findings."),
+                                           
+                                           h3("Applications"),
+                                           tags$ol(
+                                               h4(tags$li("Exploratory Data Analysis (EDA): to visualize the distribution of bus stops in Singapore using Spatial Points Map as well as
+                                                       Origin and Destination of commuter flow using Choropleth and Desire Lines Maps.")),
+                                               h4(tags$li("Spatial Interaction Models: to determine how well the models are able to fit the empirical (origin, destination) data."))
+                                           ),
+                                           
+                                           h3("R Blogdown Page"),
+                                           h4("Do check out our R blogdown page for the full report here", a(href="https://flosg-is415.netlify.app/about.html", "here."))
+                                           
+                                           
+                                           
+                                ) # About mainPanel
+                             ), # About sidebarlayout
+                    ), # About tabPanel
+                    
                     # EDA
                     tabPanel("EDA", fluid = TRUE,
                              sidebarLayout(
@@ -150,30 +222,38 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          
                                      ), # 2nd conditionalPanel
                                      
-                                     # # Desire lines
-                                     # conditionalPanel(
-                                     #     'input.EDA_var === "Desire lines Maps"',
-                                     #     selectInput(inputId = "dt_d",
-                                     #                 label = "Day Type:",
-                                     #                 choices = c("Weekday" = "WEEKDAY",
-                                     #                             "Weekend" = "WEEKENDS/HOLIDAY"),
-                                     #                 selected = "WEEKDAY"),
-                                     #     
-                                     #     selectInput(inputId = "hr_mth_d",
-                                     #                 label = "Hour/Month Interval:",
-                                     #                 choices = c("Month" = "YEAR_MONTH",
-                                     #                             "Hour" = "TIME_PER_HOUR"),
-                                     #                 selected = "YEAR_MONTH"),
-                                     #     
-                                     #     sliderInput(inputId = "maxthres",
-                                     #                 label = "Maximum Threshold:",
-                                     #                 min = 10000,
-                                     #                 max = 100000,
-                                     #                 value = 50000,
-                                     #                 step = 10000),
-                                     #     
-                                     #     
-                                     # ) # 3rd conditionalPanel
+                                     # Desire lines
+                                     conditionalPanel(
+                                         'input.EDA_var === "Desire lines Maps"',
+                                         selectInput(inputId = "dt_d",
+                                                     label = "Day Type:",
+                                                     choices = c("Weekday" = "WEEKDAY",
+                                                                 "Weekend" = "WEEKENDS/HOLIDAY"),
+                                                     selected = "WEEKDAY"),
+                                         selectInput(inputId = "hr_mth_d",
+                                                     label = "Hour/Month Interval:",
+                                                     choices = c("Month" = "YEAR_MONTH",
+                                                                 "Hour" = "TIME_PER_HOUR"),
+                                                     selected = "YEAR_MONTH"),
+                                         
+                                         conditionalPanel(
+                                             condition = "input.hr_mth_d =='YEAR_MONTH'",
+                                             radioButtons("mth_var", label = h3("Month"),
+                                                          choices = list("June" = "2021-06", "July" = "2021-07", "August" = "2021-08"), 
+                                                          selected = "2021-06")
+                                         ),
+
+
+
+                                         sliderInput(inputId = "maxthres",
+                                                     label = "Maximum Threshold:",
+                                                     min = 10000,
+                                                     max = 100000,
+                                                     value = 50000,
+                                                     step = 10000),
+
+
+                                     ) # 3rd conditionalPanel
                                      
                                  ), #sidebarPanel
                                  
@@ -190,8 +270,8 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                  )
                                  
                                  
-                             ) #1st sidebarLayout
-                    ), # 1st tabPanel
+                             ) # EDA sidebarLayout
+                    ), # EDA tabPanel
                     
                     
                     # Spatial Interaction Model
@@ -273,17 +353,18 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                      
                                  )
                                  
-                             ) # 2nd sidebarLayout
-                    ) # 2nd tabPanel
+                             ) # SIM sidebarLayout
+                    ) # SIM tabPanel
                     
-                )#navbarPage
+                ) #navbarPage
                 
-)#fluidpage
+) #fluidpage
 
 
 
 
 server <- function(input, output){
+    
     # Spatial Points Map
     output$pt_bus_stop <- renderTmap({
         tm_shape(mpsz_sf) +
@@ -342,6 +423,7 @@ server <- function(input, output){
         do.call(tmap_arrange, cmap_list)
     })
     
+    
 
 
     # SIM - Unconstrained
@@ -359,7 +441,6 @@ server <- function(input, output){
             sim <- glm(TRIPS ~ df_inter[["ORIGIN_SZ_C"]] + df_inter[["DEST_SZ_C"]] + log(dist), na.action = na.exclude, family = poisson(link = "log"), data = df_inter)
         }
         
-        # print(summary(sim))
         output$sim_summary <- renderPrint({
             summary(sim)
         })
@@ -379,10 +460,6 @@ server <- function(input, output){
         output$sim_matrix <- renderTable({
             head(df_matrix_sim, 10)
         })
-        
-
-        print(df_matrix)
-        print(df_matrix_sim)
 
         print(ggplot(data=df_inter,
                      aes(y = TRIPS,
