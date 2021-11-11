@@ -87,9 +87,9 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          'input.EDA_var === "Spatial Points"',
                                          selectInput(inputId = "colour_pmap",
                                                      label = "Colour of Points",
-                                                     choices = c("blue" = "blue",
-                                                                 "green" = "green",
-                                                                 "red" = "red"),
+                                                     choices = c("Blue" = "blue",
+                                                                 "Green" = "green",
+                                                                 "Red" = "red"),
                                                      selected = "blue"),
                                          
                                          sliderInput(inputId = "alpha",
@@ -106,7 +106,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                      
                                      # Choropleth
                                      conditionalPanel(
-                                         'input.EDA_var === "Choropleth Maps',
+                                         'input.EDA_var === "Choropleth Maps"',
                                          selectInput(inputId = "classification",
                                                      label = "Classification method",
                                                      choices = c("fixed" = "fixed",
@@ -122,9 +122,9 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                      selected = "pretty"), 
                                          selectInput(inputId = "colour_cmap",
                                                      label = "Colour scheme",
-                                                     choices = c("blues" = "Blues",
-                                                                 "reds" = "Reds",
-                                                                 "greens" = "Greens",
+                                                     choices = c("Blues" = "Blues",
+                                                                 "Reds" = "Reds",
+                                                                 "Greens" = "Greens",
                                                                  "Yellow-Orange-Red" = "YlOrRd",
                                                                  "Yellow-Orange-Brown" = "YlOrBr",
                                                                  "Yellow-Green" = "YlGn",
@@ -148,7 +148,32 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                                  "Hour" = "TIME_PER_HOUR"),
                                                      selected = "YEAR_MONTH")
                                          
-                                     ) # 2nd conditionalPanel
+                                     ), # 2nd conditionalPanel
+                                     
+                                     # # Desire lines
+                                     # conditionalPanel(
+                                     #     'input.EDA_var === "Desire lines Maps"',
+                                     #     selectInput(inputId = "dt_d",
+                                     #                 label = "Day Type:",
+                                     #                 choices = c("Weekday" = "WEEKDAY",
+                                     #                             "Weekend" = "WEEKENDS/HOLIDAY"),
+                                     #                 selected = "WEEKDAY"),
+                                     #     
+                                     #     selectInput(inputId = "hr_mth_d",
+                                     #                 label = "Hour/Month Interval:",
+                                     #                 choices = c("Month" = "YEAR_MONTH",
+                                     #                             "Hour" = "TIME_PER_HOUR"),
+                                     #                 selected = "YEAR_MONTH"),
+                                     #     
+                                     #     sliderInput(inputId = "maxthres",
+                                     #                 label = "Maximum Threshold:",
+                                     #                 min = 10000,
+                                     #                 max = 100000,
+                                     #                 value = 50000,
+                                     #                 step = 10000),
+                                     #     
+                                     #     
+                                     # ) # 3rd conditionalPanel
                                      
                                  ), #sidebarPanel
                                  
@@ -158,7 +183,8 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          id="EDA_var",
                                          tabPanel("Spatial Points", tmapOutput("pt_bus_stop")),
                                          # DT::dataTableOutput(outputId = "aTable") 
-                                         tabPanel("Choropleth Maps", plotOutput(outputId =  "cmap"))
+                                         tabPanel("Choropleth Maps", plotOutput(outputId =  "cmap")),
+                                         tabPanel("Desire lines Maps", plotOutput(outputId =  "dmap"))
                                      )
                                      
                                  )
@@ -173,15 +199,52 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                              sidebarLayout(
                                  sidebarPanel(
                                      
-                                     # Unconstrained
+                                     # SIM
                                      conditionalPanel(
-                                         'input.SIM_var === "Unconstrained"',
-                                         selectInput(inputId = "colour_unmap",
+                                         'input.SIM_var === "SIM"',
+                                         selectInput(inputId = "colour_sim",
                                                      label = "Colour of Points",
-                                                     choices = c("blue" = "blue",
-                                                                 "green" = "green",
-                                                                 "red" = "red"),
-                                                     selected = "blue")
+                                                     choices = c("Blue" = "blue",
+                                                                 "Green" = "green",
+                                                                 "Red" = "red"),
+                                                     selected = "blue"),
+                                         selectInput(inputId = "sim_model",
+                                                     label = "Type of Model",
+                                                     choices = c("Unconstrained" = "Unconstrained",
+                                                                 "Origin" = "Origin",
+                                                                 "Destination" = "Destination",
+                                                                 "Doubly" = "Doubly"),
+                                                     selected = "Unconstrained"),
+                                         
+                                         # Selections for Unconstrained
+                                         conditionalPanel(
+                                             condition = "input.sim_model =='Unconstrained'",
+                                             radioButtons("un_o_var", label = h3("Origin"),
+                                                          choices = list("Population" = "O_TOTAL_POP", "Income" = "O_MONTHLY_INCOME"), 
+                                                          selected = "O_TOTAL_POP"),
+                                             radioButtons("un_d_var", label = h3("Destination"),
+                                                          choices = list("Population" = "D_TOTAL_POP", "Income" = "D_MONTHLY_INCOME"), 
+                                                          selected = "D_MONTHLY_INCOME")
+                                         ),
+                                         # Selections for Origin
+                                         conditionalPanel(
+                                             condition = "input.sim_model =='Origin'",
+                                             selectInput(inputId = "o_var",
+                                                         label = "Population/Income:",
+                                                         choices = c("Population" = "D_TOTAL_POP",
+                                                                     "Income" = "D_MONTHLY_INCOME"),
+                                                         selected = "D_TOTAL_POP")
+                                         ),
+                                         # Selections for Destination
+                                         conditionalPanel(
+                                             condition = "input.sim_model =='Destination'",
+                                             selectInput(inputId = "d_var",
+                                                         label = "Population/Income:",
+                                                         choices = c("Population" = "O_TOTAL_POP",
+                                                                     "Income" = "O_MONTHLY_INCOME"),
+                                                         selected = "D_TOTAL_POP")
+                                         )
+
                                      ) # 1st conditionalPanel
                                      
                                  ), # 2nd sidebarPanel
@@ -189,7 +252,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                  mainPanel(
                                      tabsetPanel(
                                          id="SIM_var",
-                                         tabPanel("Unconstrained", plotOutput(outputId = "un_map"))
+                                         tabPanel("SIM", plotOutput(outputId = "sim"))
                                          # DT::dataTableOutput(outputId = "aTable")
                                      )
                                      
@@ -264,13 +327,45 @@ server <- function(input, output){
         do.call(tmap_arrange, cmap_list)
     })
     
+
+
     # SIM - Unconstrained
-    output$un_map <- renderPlot({
-        ggplot(data=df_inter, 
-               aes(y = `TRIPS`, 
-                   x = `fitted`))+
-            geom_point(color=input$colour_unmap)
+    output$sim <- renderPlot({
         
+        sim <- 0
+        
+        if (input$sim_model=="Unconstrained"){
+            sim <- glm(TRIPS ~ log(df_inter[[input$un_o_var]]) + log(df_inter[[input$un_d_var]]) + log(dist), na.action = na.exclude, family = poisson(link = "log"), data = df_inter)
+        }  else if (input$sim_model=="Origin"){
+            sim <- glm(TRIPS ~ df_inter[["ORIGIN_SZ_C"]] + log(df_inter[[input$o_var]]) + log(dist)-1, na.action = na.exclude, family = poisson(link = "log"), data = df_inter)
+        }  else if (input$sim_model=="Destination"){
+            sim <- glm(TRIPS ~ df_inter[["DEST_SZ_C"]] + log(df_inter[[input$d_var]]) + log(dist)-1, na.action = na.exclude, family = poisson(link = "log"), data = df_inter)
+        } else if (input$sim_model=="Doubly"){
+            sim <- glm(TRIPS ~ df_inter[["ORIGIN_SZ_C"]] + df_inter[["DEST_SZ_C"]] + log(dist), na.action = na.exclude, family = poisson(link = "log"), data = df_inter)
+        }
+        
+        # print(summary(sim))
+        
+        df_inter$simFitted <- round(fitted(sim),0)
+        #print(sum(df$simFitted))
+
+        # Original
+        df_matrix <- dcast(df_inter, ORIGIN_SZ_C ~ DEST_SZ_C, sum, value.var = "TRIPS", margins=c("ORIGIN_SZ_C", "DEST_SZ_C"))
+
+        # SIM
+        df_matrix_sim <- dcast(df_inter, ORIGIN_SZ_C ~ DEST_SZ_C, sum, value.var = "simFitted", margins=c("ORIGIN_SZ_C", "DEST_SZ_C"))
+
+        print(df_matrix)
+        print(df_matrix_sim)
+
+        print(ggplot(data=df_inter,
+                     aes(y = TRIPS,
+                         x = `simFitted`))+
+                  geom_point(color=input$colour_sim, fill="light blue"))
+
+        print('Assess Model Performance:' )
+        print(postResample(df_inter$TRIPS, df_inter$simFitted))
+
     })
     
 }
