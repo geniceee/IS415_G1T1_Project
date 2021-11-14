@@ -19,6 +19,6 @@ The links you want to check out:
 
 The web page contains everything about our project including our poster, user guide and research paper.
 
-2. Project R Shiny application
+2. [Project R Shiny application](https://flosg-is415.shinyapps.io/flosg/)
 
 The R Shiny application allows user to upload their own datasets and utilize our geospatial analysis of Spatial Interaction Models on their own datasets.

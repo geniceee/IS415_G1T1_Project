@@ -9,3 +9,18 @@ site: distill::distill_website
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+
+# IS415 Project: FloSG - Spatial Interaction Models
+By Group 1: [Genice Goh](https://www.linkedin.com/in/genice-goh/), [Nor Aisyah](https://www.linkedin.com/in/nor-aisyah/) and [Wong Wei Ling](https://www.linkedin.com/in/wei-ling-wong-a84130131/)
+
+This project is a geospatial analytics project which will create a Shiny application to assist users with Spatial Interaction Models.
+
+The links you want to check out:
+
+1. [Project Web page](https://flosg-is415.netlify.app/)
+
+The web page contains everything about our project including our poster, user guide and research paper.
+
+2. [Project R Shiny application](https://flosg-is415.shinyapps.io/flosg/)
+
+The R Shiny application allows user to upload their own datasets and utilize our geospatial analysis of Spatial Interaction Models on their own datasets.

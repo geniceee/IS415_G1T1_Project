@@ -7,6 +7,7 @@
 #    http://shiny.rstudio.com/
 #
 
+library(rsconnect)
 library(shiny)
 library(sf)
 library(tidyverse)

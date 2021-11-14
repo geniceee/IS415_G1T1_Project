@@ -6,15 +6,15 @@
       "description": "This project is done for IS415 Geospatial Analytics & Application (SMU-X), a module in Singapore Management University (SMU) with the guidance of Professor Kam Tin Seong.",
       "author": [],
       "contents": "\r\nIS415 Project: FloSG - Spatial Interaction Models\r\nBy Group 1: Genice Goh, Nor Aisyah and Wong Wei Ling\r\nThis project is a geospatial analytics project which will create a Shiny application to assist users with Spatial Interaction Models.\r\nThe links you want to check out:\r\nProject Web page\r\nThe web page contains everything about our project including our poster, user guide and research paper.\r\nProject R Shiny application\r\nThe R Shiny application allows user to upload their own datasets and utilize our geospatial analysis of Spatial Interaction Models on their own datasets.\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-10-14T16:59:25+08:00"
+      "last_modified": "2021-11-14T14:58:49+08:00"
     },
     {
       "path": "index.html",
       "title": "IS415 AY21-22 G1T1",
       "description": "This project is done for IS415 Geospatial Analytics & Application (SMU-X), a module in Singapore Management University (SMU) with the guidance of Professor Kam Tin Seong.\n",
       "author": [],
-      "contents": "\r\n\r\n\r\n\r\n",
-      "last_modified": "2021-10-14T16:59:30+08:00"
+      "contents": "\r\nIS415 Project: FloSG - Spatial Interaction Models\r\nBy Group 1: Genice Goh, Nor Aisyah and Wong Wei Ling\r\nThis project is a geospatial analytics project which will create a Shiny application to assist users with Spatial Interaction Models.\r\nThe links you want to check out:\r\nProject Web page\r\nThe web page contains everything about our project including our poster, user guide and research paper.\r\nProject R Shiny application\r\nThe R Shiny application allows user to upload their own datasets and utilize our geospatial analysis of Spatial Interaction Models on their own datasets.\r\n\r\n\r\n\r\n",
+      "last_modified": "2021-11-14T14:58:59+08:00"
     }
   ],
   "collections": []
