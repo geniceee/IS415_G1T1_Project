@@ -98,8 +98,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                  sidebarPanel(h3(strong("FloSG"), style = "color: #ff4d4d"),
                                               br(),
                                               
-                                              # img(src="../smu.JPG", height = 300),
-                                              # imageOutput("www/smu.png", width = 3),
+                                              
                                               
                                               h4("A Group Project by:"),
                                                 tags$ul(
@@ -109,17 +108,20 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                 ),
                                               br(),
                                               
-                                              h5("Guided by Professor Kam Tin Seong for IS415 Geospatial Analytics and Applications")
+                                              h5("Guided by Professor Kam Tin Seong for IS415 Geospatial Analytics and Applications"),
+                                              br(),
                                               
-                                              ), 
+                                             # img(src="www/smu.png", height = 300),
+                                             imageOutput("smu"), width = 3
+                                 ),
                                  
                                  mainPanel(h3("Project Motivation"),
                                            fluidRow(
-                                               column(10, 
+                                               column(7, 
                                                       h4("There is presently no analytics application that looks at public transportation commuter patterns across time and space.
                                                          We hope that creating this application can bring benefits to multiple stakeholders:
                                                          by allowing commuters to better plan their journeys, workplaces to effectively implement flexible working hours,
-                                                         and the relevant governmental organisations to implement measures to address peak hour crowds."),
+                                                         and the relevant governmental organisations to implement measures to address peak hour crowds.", style = "margin-top:5px;"),
                                                       br(),
                                                       h4("Since the pandemic, even though there are people who are less willing to take the public transport, there is still a
                                                          crowd in ridership at certain times. An example would be when Mass Rapid Transport (MRT) services broke down in October 2020,
@@ -128,8 +130,12 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                       br(),
                                                       h4("The government has implemented measures to address peak hour crowds, including increasing the frequency of buses and trains
                                                          during these periods. While this does solve the issue, we wonder about the sustainability of increasing the frequency of
-                                                         public transport - particularly buses, when public transportation ridership is going to increase over the years."))
-                                           ), # fluid row
+                                                         public transport - particularly buses, when public transportation ridership is going to increase over the years.")),
+                                               column(5,
+                                                   imageOutput("sg_map", width = "800%", height = "600px"),
+                                                   tags$a(href="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.mappr.co%2Fcounties%2Fregions-of-singapore%2F&psig=AOvVaw0rGtOx1ubkZxNSK9jB9YM6&ust=1636952115136000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCPCrvP2Hl_QCFQAAAAAdAAAAABAN", "Source: Mappr.co")
+                                               )
+                                              ), # fluid row
                                            
                                            h3("Project Objectives"),
                                            h4("In our project, we will build an application to investigate commuter patterns for bus services across time and space and how they contribute to peak hour crowds."),
@@ -146,6 +152,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                )
                                            ),
                                            h4("We will then analyse and interpret the output, and then conclude the project with our findings."),
+                                           br(),
                                            
                                            h3("Applications"),
                                            tags$ol(
@@ -153,6 +160,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                        Origin and Destination of commuter flow using Choropleth and Desire Lines Maps.")),
                                                h4(tags$li("Spatial Interaction Models: to determine how well the models are able to fit the empirical (origin, destination) data."))
                                            ),
+                                           br(),
                                            
                                            h3("R Blogdown Page"),
                                            h4("Do check out our R blogdown page for the full report here", a(href="https://flosg-is415.netlify.app/about.html", "here."))
@@ -370,7 +378,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
 
 
 
-server <- function(input, output){
+server <- function(input, output, session){
     
     # Spatial Points Map
     output$pt_bus_stop <- renderTmap({
@@ -595,6 +603,41 @@ server <- function(input, output){
         
 
     })
+    
+    
+    
+    
+    # About SMU logo
+    output$smu <- renderImage({
+        width <-  session$clientData$output_news_map_width
+        height <-  session$clientData$output_news_map_height
+        
+        list(
+            src = "www/smu.png",
+            contentType = "image/png",
+            width = width,
+            height = height,
+            alt = "SMU Logo"
+        )
+    }, deleteFile = FALSE)
+    
+    
+    # About Singapore Map
+    output$sg_map <- renderImage({
+        # width <- session$clientData$output_news_map_width
+        # height <- session$clientData$output_news_map_height
+        
+        list(
+            src = "www/sg_map.jpeg",
+            contentType = "image/jpeg",
+            width = 700,
+            height = 600,
+            alt = "Singapore Map"
+        )
+    }, deleteFile = FALSE)
+    
+    
+    
     
 }
 
