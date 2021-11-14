@@ -43,12 +43,27 @@ omit_bus <- list(46211, 46219, 46239, 46609, 47701)
 bus_sf <- bus_sf[!bus_sf$BUS_STOP_N %in% omit_bus, ]
 
 
-## Read in OD pop data
+## Read in OD pop data (EDA)
 od_pop_sz <- read_csv("data/aspatial/od_pop_sz.csv")
+
+
+## To subset peak hours
+od_pop_sz$PEAK_HR_CAT <- ifelse(od_pop_sz$TIME_PER_HOUR == 7|
+                                    od_pop_sz$TIME_PER_HOUR == 8|
+                                    od_pop_sz$TIME_PER_HOUR == 9,
+                                    "0700-0900", 
+                            ifelse(od_pop_sz$TIME_PER_HOUR == 10|
+                                   od_pop_sz$TIME_PER_HOUR == 11|
+                                   od_pop_sz$TIME_PER_HOUR == 12,
+                                    "1000-1200", 
+                           ifelse(od_pop_sz$TIME_PER_HOUR == 17|
+                                  od_pop_sz$TIME_PER_HOUR == 18|
+                                  od_pop_sz$TIME_PER_HOUR == 19,
+                                  "1700-1900",      
+                                  "Not peak hour")))
 print(od_pop_sz)
 
-
-## Read in OD all data
+## Read in OD all data (Models)
 od_sz <- read_csv("data/aspatial/od_sz_data.csv")
 print(od_sz)
 
@@ -57,7 +72,6 @@ od_sz[rowSums(is.na(od_sz))!=0,]
 
 ### 7.5.4 Set intra-zonal distances to smaller value
 od_sz$dist <- ifelse(od_sz$dist == 0,5,od_sz$dist)
-glimpse(od_sz)
 
 ### 7.5.5 Remove intra-zonal flows
 df_inter <- od_sz[od_sz$ORIGIN_SZ_C != od_sz$DEST_SZ_C, ]
@@ -230,27 +244,20 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                      choices = c("Weekday" = "WEEKDAY",
                                                                  "Weekend" = "WEEKENDS/HOLIDAY"),
                                                      selected = "WEEKDAY"),
-                                         selectInput(inputId = "hr_mth_d",
-                                                     label = "Hour/Month Interval:",
-                                                     choices = c("Month" = "YEAR_MONTH",
-                                                                 "Hour" = "TIME_PER_HOUR"),
-                                                     selected = "YEAR_MONTH"),
                                          
-                                         conditionalPanel(
-                                             condition = "input.hr_mth_d =='YEAR_MONTH'",
-                                             radioButtons("mth_var", label = h3("Month"),
-                                                          choices = list("June" = "2021-06", "July" = "2021-07", "August" = "2021-08"), 
-                                                          selected = "2021-06")
-                                         ),
+                                         selectInput(inputId = "hr_mth_d",
+                                                     label = "Peak Hour/Month Interval:",
+                                                     choices = c("Month" = "YEAR_MONTH",
+                                                                 "Peak Hour" = "PEAK_HR_CAT",
+                                                                 "Both" = "BOTH"),
+                                                     selected = "YEAR_MONTH")
 
-
-
-                                         sliderInput(inputId = "maxthres",
-                                                     label = "Maximum Threshold:",
-                                                     min = 10000,
-                                                     max = 100000,
-                                                     value = 50000,
-                                                     step = 10000),
+                                         # sliderInput(inputId = "maxthres",
+                                         #             label = "Maximum Threshold:",
+                                         #             min = 10000,
+                                         #             max = 100000,
+                                         #             value = 50000,
+                                         #             step = 10000),
 
 
                                      ) # 3rd conditionalPanel
@@ -263,8 +270,8 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          id="EDA_var",
                                          tabPanel("Spatial Points", tmapOutput("pt_bus_stop")),
                                          # DT::dataTableOutput(outputId = "aTable") 
-                                         tabPanel("Choropleth Maps", plotOutput(outputId =  "cmap")),
-                                         tabPanel("Desire lines Maps", plotOutput(outputId =  "dmap"))
+                                         tabPanel("Choropleth Maps", plotOutput(outputId =  "cmap", width="100%")),
+                                         tabPanel("Desire lines Maps", plotOutput(outputId =  "dmap", width="100%"))
                                      )
                                      
                                  )
@@ -377,31 +384,31 @@ server <- function(input, output){
     
     # Choropleth
     output$cmap <- renderPlot({
-        
-        sub_df <- od_pop_sz %>% filter(DAY_TYPE==input$dt)%>% 
+
+        sub_df <- od_pop_sz %>% filter(DAY_TYPE==input$dt)%>%
             group_by(!!!syms(input$o_d), !!!syms(input$hr_mth))  %>%
             summarise(TOTAL_TRIPS = sum(TRIPS))  %>%
             ungroup()  %>%
             select(input$o_d, input$hr_mth, TOTAL_TRIPS)  %>%
             pivot_wider(names_from=input$hr_mth,  values_from=TOTAL_TRIPS)
-        
+
         # Replace NA values with 0
         sub_df[is.na(sub_df)] = 0
-        
+
         # Get unique values of grp_by value
         unique_grp <- sort(unique(od_pop_sz[[input$hr_mth]]))
-        
+
         # if categorical variable is numeric, change to character only after sorting
         if (input$hr_mth=="TIME_PER_HOUR"){
             unique_grp <- as.character(sort(as.numeric(unique_grp)))
         }
-        
+
         # Perform left join
         mpsz_od_grp <- left_join(mpsz_sf, sub_df, by = c('SUBZONE_C' = input$o_d))
-        
+
         # Create list to store choropleth maps
         cmap_list <- vector(mode = "list", length = length(unique_grp))
-        
+
         for (i in 1:length(unique_grp)) {
             cmap <- tm_shape(mpsz_od_grp) +
                 tm_fill(col = unique_grp[[i]],
@@ -410,18 +417,133 @@ server <- function(input, output){
                         n = 5) +
                 tm_borders(lwd = 0.05,
                            alpha = 0.5) +
-                
+
                 tm_layout(panel.show = TRUE,
                           panel.labels = unique_grp[[i]],
                           panel.label.color = 'black',
-                          panel.label.size = 0.7,
+                          panel.label.size = 1.5,
                           inner.margins = 0,
-                          legend.text.size = 0.4,
-                          frame=T)
+                          legend.text.size = 1,
+                          legend.position = c("left", "bottom"),
+                          frame=T) + 
+                tm_scale_bar(text.size = 1,
+                             position="right")
+
             cmap_list[[i]] <- cmap
         }
-        do.call(tmap_arrange, cmap_list)
-    })
+        ncol_list_c <- c(cmap_list, ncol=3)
+        do.call(tmap_arrange, ncol_list_c)
+    }, height=1000)
+    
+    
+
+ 
+
+                                    
+                                    
+    # Desire lines
+    output$dmap <- renderPlot({
+
+        if (input$hr_mth_d=="YEAR_MONTH") {
+            sub_df <- od_pop_sz %>%
+                filter(DAY_TYPE==input$dt_d) %>%
+                group_by(ORIGIN_SZ_C, DEST_SZ_C, !!!syms(input$hr_mth_d)) %>%
+                summarise(TRIPS = sum(TRIPS)) %>%
+                ungroup()
+        }
+        
+        if (input$hr_mth_d=="PEAK_HR_CAT") {
+            sub_df <- od_pop_sz %>%
+                filter(DAY_TYPE==input$dt_d, PEAK_HR_CAT!="Not peak hour") %>%
+                group_by(ORIGIN_SZ_C, DEST_SZ_C, !!!syms(input$hr_mth_d)) %>%
+                summarise(TRIPS = sum(TRIPS)) %>%
+                ungroup()
+        }
+        
+        if (input$hr_mth_d=="BOTH") {
+            sub_df <- od_pop_sz %>%
+                filter(DAY_TYPE==input$dt_d, PEAK_HR_CAT!="Not peak hour") %>%
+                group_by(ORIGIN_SZ_C, DEST_SZ_C, YEAR_MONTH, PEAK_HR_CAT) %>%
+                summarise(TRIPS = sum(TRIPS)) %>%
+                ungroup()
+        }
+        
+        
+        #Replace NA values with 0
+        sub_df[is.na(sub_df)] = 0
+        
+        # Get unique values of grp_by value
+        if (input$hr_mth_d=="YEAR_MONTH" |  input$hr_mth_d=="PEAK_HR_CAT"){ # 
+            unique_grp <- sort(unique(sub_df[[input$hr_mth_d]]))
+        }
+        
+        if (input$hr_mth_d=="BOTH"){
+            sub_df$concat <- paste(sub_df$YEAR_MONTH, sub_df$PEAK_HR_CAT)
+            
+            unique_grp <- sort(unique(sub_df$concat))
+        }
+        
+
+        # Take required columns from mpsz
+        mpsz_sf_req = mpsz_sf[, c('SUBZONE_C')]
+
+        dlines_list <- vector(mode = "list", length = length(unique_grp))
+
+        # Remove Intra zonal flows
+        df_inter <- sub_df["ORIGIN_SZ_C" != "DEST_SZ_C",]
+        # %>%
+        #   filter(TRIPS < maxthres)
+
+
+        for (i in 1:length(unique_grp)) {
+
+            # Filter according to the respective year_month/ peak hour
+            if (input$hr_mth_d == "YEAR_MONTH") {
+                # print(unique_grp)
+                df_filter <- df_inter %>% filter(YEAR_MONTH == unique_grp[[i]])
+            }
+
+            if (input$hr_mth_d == "PEAK_HR_CAT") {
+                df_filter <- df_inter %>% filter(PEAK_HR_CAT == unique_grp[[i]])
+            }
+
+            if (input$hr_mth_d == "BOTH") {
+                df_filter <- df_inter %>% filter(concat == unique_grp[[i]])
+            }
+            
+
+            # od2line function
+            network_inter <- od2line(flow = df_filter, zones = mpsz_sf_req)
+
+            # Filter only flows containing above a threshold level of flows
+            # Here we fix the minthres to get some valuable insights
+            desire_lines_top <- network_inter %>% filter(TRIPS >= 10000)
+
+            # Set suitable width
+            wd_width <- max(desire_lines_top$TRIPS /
+                                max(desire_lines_top$TRIPS)) * 2
+
+            dmap <- tm_shape(mpsz_sf) +
+                tm_borders("grey25", alpha=.3) +
+                tm_shape(desire_lines_top) +
+                tm_lines(palette="Paired", col="TRIPS", lwd = wd_width) +
+                tm_layout(panel.show = TRUE,
+                          panel.labels = unique_grp[[i]],
+                          panel.label.color = 'black',
+                          panel.label.size = 1.5,
+                          inner.margins = 0,
+                          legend.text.size = 1,
+                          frame=T) +
+                tm_scale_bar(text.size = 1)
+            
+
+
+            dlines_list[[i]] <- dmap
+            }
+        ncol_list <- c(dlines_list, ncol=3)
+        do.call(tmap_arrange, ncol_list)
+
+    }, height=900)
     
     
 
