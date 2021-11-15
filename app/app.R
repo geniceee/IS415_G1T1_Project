@@ -18,6 +18,7 @@ library(sp)
 library(caret)
 library(shinythemes)
 library(shinyjs)
+# library(cowplot)
 
 ## 4.1 Import Geospatial data
 mpsz_sf <- st_read(dsn = "data/geospatial", layer="MP14_SUBZONE_WEB_PL")
@@ -133,7 +134,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                          during these periods. While this does solve the issue, we wonder about the sustainability of increasing the frequency of
                                                          public transport - particularly buses, when public transportation ridership is going to increase over the years.")),
                                                column(5,
-                                                   imageOutput("sg_map", width = "800%", height = "600px"),
+                                                   imageOutput("sg_map", width = "800%", height = "400px"),
                                                    tags$a(href="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.mappr.co%2Fcounties%2Fregions-of-singapore%2F&psig=AOvVaw0rGtOx1ubkZxNSK9jB9YM6&ust=1636952115136000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCPCrvP2Hl_QCFQAAAAAdAAAAABAN", "Source: Mappr.co")
                                                )
                                               ), # fluid row
@@ -175,7 +176,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                     # EDA
                     tabPanel("EDA", fluid = TRUE,
                              sidebarLayout(
-                                 sidebarPanel(
+                                 sidebarPanel(fluid = TRUE, width = 3,
                                      
                                      # Spatial Point Map of Bus Stops
                                      conditionalPanel(
@@ -192,11 +193,9 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                      min = 0.3,
                                                      max = 1,
                                                      value = c(0.4)),
-                                         sliderInput(inputId = "size",
-                                                     label = "Size of Points",
-                                                     min = 0.01,
-                                                     max = 0.1,
-                                                     value = c(0.03))
+                                         checkboxInput(inputId = "showData",
+                                                       label = "Show data table",
+                                                       value = TRUE)
                                      ), # 1st conditionalPanel
                                      
                                      # Choropleth
@@ -277,8 +276,9 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                  mainPanel(
                                      tabsetPanel(
                                          id="EDA_var",
-                                         tabPanel("Spatial Points", tmapOutput("pt_bus_stop")),
-                                         # DT::dataTableOutput(outputId = "aTable") 
+                                         tabPanel("Spatial Points", tmapOutput("pt_bus_stop"),
+                                                  DT::dataTableOutput(outputId = "pt_table")),
+                                         # DT::dataTableOutput(outputId = "pt_table"),
                                          tabPanel("Choropleth Maps", plotOutput(outputId =  "cmap", width="100%")),
                                          tabPanel("Desire lines Maps", plotOutput(outputId =  "dmap", width="100%"))
                                      )
@@ -293,7 +293,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                     # Spatial Interaction Model
                     tabPanel("SIM", fluid = TRUE,
                              sidebarLayout(
-                                 sidebarPanel(
+                                 sidebarPanel(fluid = TRUE, width = 3,
                                      
                                      # SIM
                                      conditionalPanel(
@@ -383,12 +383,22 @@ server <- function(input, output, session){
     
     # Spatial Points Map
     output$pt_bus_stop <- renderTmap({
-        tm_shape(mpsz_sf) +
-            tm_polygons() +
-            tm_shape(bus_sf) +
-            tm_dots(alpha = input$alpha,
-                    col = input$colour_pmap,
-                    size = input$size)
+        # tm_shape(mpsz_sf) +
+            # tm_polygons() +
+                tm_shape(bus_sf) + # , bbox=st_bbox(bus_sf)
+                tm_dots(alpha = input$alpha,
+                    col = input$colour_pmap) +
+            tm_view(set.zoom.limits = c(11,13))+
+        tm_basemap("OpenStreetMap")
+    })
+    
+    # Spatial Points data table
+    output$pt_table <- DT::renderDataTable({
+        if(input$showData) {
+            DT::datatable(data = bus_sf,
+                          options = list(pageLength  = 4),
+                          rownames = FALSE)
+        }
     })
     
     # Choropleth
@@ -442,7 +452,7 @@ server <- function(input, output, session){
         }
         ncol_list_c <- c(cmap_list, ncol=3)
         do.call(tmap_arrange, ncol_list_c)
-    }, height=1000)
+    }, height=650, width=1100)
     
     
 
@@ -552,7 +562,7 @@ server <- function(input, output, session){
         ncol_list <- c(dlines_list, ncol=3)
         do.call(tmap_arrange, ncol_list)
 
-    }, height=900)
+    }, height=650, width=1100)
     
     
 
@@ -595,7 +605,10 @@ server <- function(input, output, session){
         print(ggplot(data=df_inter,
                      aes(y = TRIPS,
                          x = `simFitted`))+
-                  geom_point(color=input$colour_sim, fill="light blue"))
+                  geom_point(color=input$colour_sim, fill="light blue") +
+                  xlim(0,300000) +
+                  ylim(0,400000)
+                  )
 
         
         output$sim_results <- renderPrint({
@@ -631,8 +644,8 @@ server <- function(input, output, session){
         list(
             src = "www/sg_map.jpeg",
             contentType = "image/jpeg",
-            width = 700,
-            height = 600,
+            width = 500,
+            height = 400,
             alt = "Singapore Map"
         )
     }, deleteFile = FALSE)
