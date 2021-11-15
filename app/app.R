@@ -196,6 +196,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          checkboxInput(inputId = "showData",
                                                        label = "Show data table",
                                                        value = TRUE)
+                                         
                                      ), # 1st conditionalPanel
                                      
                                      # Choropleth
@@ -258,14 +259,14 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                      choices = c("Month" = "YEAR_MONTH",
                                                                  "Peak Hour" = "PEAK_HR_CAT",
                                                                  "Both" = "BOTH"),
-                                                     selected = "YEAR_MONTH")
-
-                                         # sliderInput(inputId = "maxthres",
-                                         #             label = "Maximum Threshold:",
-                                         #             min = 10000,
-                                         #             max = 100000,
-                                         #             value = 50000,
-                                         #             step = 10000),
+                                                     selected = "YEAR_MONTH"),
+                                         
+                                         sliderInput(inputId = "pct",
+                                                     label = "Top Percentage:",
+                                                     min = 0,
+                                                     max = 2,
+                                                     value = 0.5,
+                                                     step = 0.5),
 
 
                                      ) # 3rd conditionalPanel
@@ -494,27 +495,46 @@ server <- function(input, output, session){
         #Replace NA values with 0
         sub_df[is.na(sub_df)] = 0
         
+        # Remove Intra zonal flows
+        df_inter <- sub_df %>%
+            filter(ORIGIN_SZ_C != DEST_SZ_C)
+        
+        # print(df_inter)
+        
+        # Sort by descending order
+        df_inter <- df_inter %>% arrange(desc(TRIPS))
+
+        # Get top rows to show based on input parameter percentage
+        top_n <- nrow(df_inter) * input$pct /100
+
+        df_inter <- head(df_inter, top_n)
+
+        #Get min of trips
+        min_trip <- min(df_inter$TRIPS)
+
+        # Get max of trips
+        max_trip <- max(df_inter$TRIPS)
+
+        # Get the range then divide by 5 to get the legend interval
+        leg_int <- (max_trip-min_trip) / 5
+
+
         # Get unique values of grp_by value
-        if (input$hr_mth_d=="YEAR_MONTH" |  input$hr_mth_d=="PEAK_HR_CAT"){ # 
-            unique_grp <- sort(unique(sub_df[[input$hr_mth_d]]))
+        if (input$hr_mth_d=="YEAR_MONTH" |  input$hr_mth_d=="PEAK_HR_CAT"){ #
+            unique_grp <- sort(unique(df_inter[[input$hr_mth_d]]))
         }
-        
+
         if (input$hr_mth_d=="BOTH"){
-            sub_df$concat <- paste(sub_df$YEAR_MONTH, sub_df$PEAK_HR_CAT)
-            
-            unique_grp <- sort(unique(sub_df$concat))
+            df_inter$concat <- paste(df_inter$YEAR_MONTH, df_inter$PEAK_HR_CAT)
+
+            unique_grp <- sort(unique(df_inter$concat))
         }
-        
+
 
         # Take required columns from mpsz
         mpsz_sf_req = mpsz_sf[, c('SUBZONE_C')]
 
         dlines_list <- vector(mode = "list", length = length(unique_grp))
-
-        # Remove Intra zonal flows
-        df_inter <- sub_df["ORIGIN_SZ_C" != "DEST_SZ_C",]
-        # %>%
-        #   filter(TRIPS < maxthres)
 
 
         for (i in 1:length(unique_grp)) {
@@ -532,36 +552,44 @@ server <- function(input, output, session){
             if (input$hr_mth_d == "BOTH") {
                 df_filter <- df_inter %>% filter(concat == unique_grp[[i]])
             }
-            
+
 
             # od2line function
             network_inter <- od2line(flow = df_filter, zones = mpsz_sf_req)
 
-            # Filter only flows containing above a threshold level of flows
-            # Here we fix the minthres to get some valuable insights
-            desire_lines_top <- network_inter %>% filter(TRIPS >= 10000)
-
-            # Set suitable width
-            wd_width <- max(desire_lines_top$TRIPS /
-                                max(desire_lines_top$TRIPS)) * 2
+            # dmap <- tm_shape(mpsz_sf) +
+            #     tm_borders("grey25", alpha=.3) +
+            #     tm_shape(desire_lines_top) +
+            #     tm_lines(palette="Paired", col="TRIPS", lwd = wd_width) +
+            #     tm_layout(panel.show = TRUE,
+            #               panel.labels = unique_grp[[i]],
+            #               panel.label.color = 'black',
+            #               panel.label.size = 1.5,
+            #               inner.margins = 0,
+            #               legend.text.size = 0.8,
+            #               frame=T) +
+            #     tm_scale_bar(text.size = 1)
 
             dmap <- tm_shape(mpsz_sf) +
                 tm_borders("grey25", alpha=.3) +
-                tm_shape(desire_lines_top) +
-                tm_lines(palette="Paired", col="TRIPS", lwd = wd_width) +
+                tm_shape(network_inter) +
+                tm_lines(palette="plasma",
+                         col="TRIPS",
+                         breaks = c(0, leg_int, leg_int*2, leg_int*3, leg_int*4, leg_int*5, leg_int*6),
+                         lwd=2
+                ) +
                 tm_layout(panel.show = TRUE,
                           panel.labels = unique_grp[[i]],
                           panel.label.color = 'black',
-                          panel.label.size = 1.5,
+                          panel.label.size = 0.7,
                           inner.margins = 0,
-                          legend.text.size = 0.8,
+                          legend.text.size = 2,
                           frame=T) +
                 tm_scale_bar(text.size = 1)
-            
 
 
             dlines_list[[i]] <- dmap
-            }
+        }
         ncol_list <- c(dlines_list, ncol=3)
         do.call(tmap_arrange, ncol_list)
 
