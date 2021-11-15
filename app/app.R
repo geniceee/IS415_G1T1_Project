@@ -297,7 +297,10 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                      
                                      # SIM
                                      conditionalPanel(
-                                         'input.SIM_var === "SIM"',
+                                         'input.SIM_var === "SIM Scatterplot"',
+                                         h4("Please select the parameters before proceeding to the other tabs"),
+                                         br(),
+                                         
                                          selectInput(inputId = "colour_sim",
                                                      label = "Colour of Points",
                                                      choices = c("Blue" = "blue",
@@ -315,10 +318,10 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          # Selections for Unconstrained
                                          conditionalPanel(
                                              condition = "input.sim_model =='Unconstrained'",
-                                             radioButtons("un_o_var", label = h3("Origin"),
+                                             radioButtons("un_o_var", label = h5("Origin"),
                                                           choices = list("Population" = "O_TOTAL_POP", "Income" = "O_MONTHLY_INCOME"), 
                                                           selected = "O_TOTAL_POP"),
-                                             radioButtons("un_d_var", label = h3("Destination"),
+                                             radioButtons("un_d_var", label = h5("Destination"),
                                                           choices = list("Population" = "D_TOTAL_POP", "Income" = "D_MONTHLY_INCOME"), 
                                                           selected = "D_MONTHLY_INCOME")
                                          ),
@@ -341,28 +344,27 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                          selected = "D_TOTAL_POP")
                                          )
 
-                                     ) # 1st conditionalPanel
+                                     ), # 1st conditionalPanel
+                                
                                      
                                  ), # 2nd sidebarPanel
                                  
                                  mainPanel(
                                      tabsetPanel(
                                          id="SIM_var",
-                                         tabPanel("SIM", plotOutput(outputId = "sim"),
-                                                  tabsetPanel(
-                                                      tabPanel(
-                                                          "SIM Summary", verbatimTextOutput(outputId = "sim_summary")
-                                                      ),
-                                                      tabPanel(
-                                                          "Original Matrix", tableOutput(outputId = "original_matrix")
-                                                      ),
-                                                      tabPanel(
-                                                          "SIM Matrix", tableOutput(outputId = "sim_matrix")
-                                                      )
-                                                  ),
-                                                  "SIM Results", verbatimTextOutput(outputId = "sim_results")
-                                            )
-                                         
+                                         tabPanel("SIM Scatterplot", plotOutput(outputId = "sim")),
+                                          tabPanel(
+                                              "SIM Summary", verbatimTextOutput(outputId = "sim_summary"),
+                                          ),
+                                          tabPanel(
+                                              "Original Matrix", tableOutput(outputId = "original_matrix")
+                                          ),
+                                          tabPanel(
+                                              "SIM Matrix", tableOutput(outputId = "sim_matrix")
+                                          ),
+                                          tabPanel(
+                                              "SIM Results", verbatimTextOutput(outputId = "sim_results")
+                                          )     
 
                                          # DT::dataTableOutput(outputId = "aTable")
                                      )
@@ -434,7 +436,7 @@ server <- function(input, output, session){
                         palette = input$colour_cmap,
                         style = input$classification,
                         n = 5) +
-                tm_borders(lwd = 0.05,
+                tm_borders(lwd = 0.4,
                            alpha = 0.5) +
 
                 tm_layout(panel.show = TRUE,
@@ -446,7 +448,8 @@ server <- function(input, output, session){
                           legend.position = c("left", "bottom"),
                           frame=T) + 
                 tm_scale_bar(text.size = 1,
-                             position="right")
+                             position="right")  +
+                tm_view(set.zoom.limits = c(11,13))
 
             cmap_list[[i]] <- cmap
         }
@@ -551,7 +554,7 @@ server <- function(input, output, session){
                           panel.label.color = 'black',
                           panel.label.size = 1.5,
                           inner.margins = 0,
-                          legend.text.size = 1,
+                          legend.text.size = 0.8,
                           frame=T) +
                 tm_scale_bar(text.size = 1)
             
