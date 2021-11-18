@@ -24,3 +24,7 @@ The web page contains everything about our project including our poster, user gu
 2. [Project R Shiny application](https://flosg-is415.shinyapps.io/flosg/)
 
 The R Shiny application allows user to upload their own datasets and utilize our geospatial analysis of Spatial Interaction Models on their own datasets.
+
+3. [Project Practice Research Paper](https://github.com/geniceee/IS415_G1T1_Project/blob/master/PracticeResearchPaper/PracticeResearchPaper.pdf)
+
+4. [User Guide](https://flosg-is415.shinyapps.io/flosg/)
