@@ -11,6 +11,8 @@ navbar:
   right:
     - text: "Project Proposal"
       href: proposal/proposal.html
+    - text: "User Guide"
+      href: userguide/UserGuide.html
     - text: "About"
       href: about.html
     - text: "Github"
