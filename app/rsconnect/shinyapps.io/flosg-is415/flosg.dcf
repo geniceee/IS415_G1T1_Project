@@ -1,13 +1,13 @@
-name: flosg
-title: flosg
+name: FloSG
+title: FloSG
 username:
 account: flosg-is415
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5119905
-bundleId: 5249727
+bundleId: 5265560
 url: https://flosg-is415.shinyapps.io/flosg/
-when: 1636872427.94137
-lastSyncTime: 1636872427.94137
+when: 1637223918.89729
+lastSyncTime: 1637223918.89729
 asMultiple: FALSE
 asStatic: FALSE

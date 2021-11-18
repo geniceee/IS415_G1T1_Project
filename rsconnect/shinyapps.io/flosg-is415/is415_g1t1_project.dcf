@@ -5,7 +5,7 @@ account: flosg-is415
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5119880
-bundleId: 5249701
+bundleId: 5265543
 url: https://flosg-is415.shinyapps.io/is415_g1t1_project/
-when: 1636871670.23831
-lastSyncTime: 1636871670.23831
+when: 1637223526.41347
+lastSyncTime: 1637223526.41347

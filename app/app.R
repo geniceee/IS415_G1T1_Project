@@ -165,8 +165,15 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                            br(),
                                            
                                            h3("R Blogdown Page"),
-                                           h4("Do check out our R blogdown page for the full report here", a(href="https://flosg-is415.netlify.app/about.html", "here."))
+                                           h4("Do check out our R blogdown page for the full report", a(href="https://flosg-is415.netlify.app/about.html", "here.")),
+                                           br(),
                                            
+                                           h3("User guide"),
+                                           h4("Do check out our user guide", a(href="", "here.")),
+                                           br(),
+                                           
+                                           h3("Github"),
+                                           h4("Do check out our Github for the codes", a(href="https://github.com/geniceee/IS415_G1T1_Project", "here.")),
                                            
                                            
                                 ) # About mainPanel
@@ -253,7 +260,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                      label = "Top Percentage:",
                                                      min = 0,
                                                      max = 2,
-                                                     value = 0.5,
+                                                     value = 2,
                                                      step = 0.5),
 
 
@@ -717,8 +724,8 @@ server <- function(input, output, session){
     
     # About SMU logo
     output$smu <- renderImage({
-        width <-  session$clientData$output_news_map_width
-        height <-  session$clientData$output_news_map_height
+        width <-  0.38 * session$clientData$output_news_map_width
+        height <- 0.32 * session$clientData$output_news_map_height
         
         list(
             src = "www/smu.png",
