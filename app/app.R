@@ -513,7 +513,14 @@ server <- function(input, output, session){
                         labels = c("< 1%", "1%-10%", "10%-50%", "50%-90%",
                                    "90%-99%", ">99%"))+
                 tm_borders(lwd=0.1, alpha = 0.3) +
-                tm_layout(legend.show = TRUE)
+                    tm_layout(panel.show = TRUE,
+                              panel.labels = unique_grp[[i]],
+                              panel.label.color = 'black',
+                              panel.label.size = 0.7,
+                              inner.margins = 0,
+                              legend.text.size = 1,
+                              frame=T) +
+                    tm_scale_bar(text.size = 1)
             
         }
         
@@ -627,18 +634,6 @@ server <- function(input, output, session){
             # od2line function
             network_inter <- od2line(flow = df_filter, zones = mpsz_sf_req)
 
-            # dmap <- tm_shape(mpsz_sf) +
-            #     tm_borders("grey25", alpha=.3) +
-            #     tm_shape(desire_lines_top) +
-            #     tm_lines(palette="Paired", col="TRIPS", lwd = wd_width) +
-            #     tm_layout(panel.show = TRUE,
-            #               panel.labels = unique_grp[[i]],
-            #               panel.label.color = 'black',
-            #               panel.label.size = 1.5,
-            #               inner.margins = 0,
-            #               legend.text.size = 0.8,
-            #               frame=T) +
-            #     tm_scale_bar(text.size = 1)
 
             dmap <- tm_shape(mpsz_sf) +
                 tm_borders("grey25", alpha=.3) +
@@ -653,7 +648,7 @@ server <- function(input, output, session){
                           panel.label.color = 'black',
                           panel.label.size = 0.7,
                           inner.margins = 0,
-                          legend.text.size = 2,
+                          legend.text.size = 1,
                           frame=T) +
                 tm_scale_bar(text.size = 1)
 
