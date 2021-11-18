@@ -202,19 +202,6 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                      # Choropleth
                                      conditionalPanel(
                                          'input.EDA_var === "Choropleth Maps"',
-                                         selectInput(inputId = "classification",
-                                                     label = "Classification method",
-                                                     choices = c("fixed" = "fixed",
-                                                                 "sd" = "sd",
-                                                                 "equal" = "equal",
-                                                                 "pretty" = "pretty",
-                                                                 "quantile" = "quantile",
-                                                                 "kmeans" = "kmeans",
-                                                                 "hclust" = "hclust",
-                                                                 "bclust" = "bclust",
-                                                                 "fisher" = "fisher",
-                                                                 "jenks" = "jenks"),
-                                                     selected = "pretty"), 
                                          selectInput(inputId = "colour_cmap",
                                                      label = "Colour scheme",
                                                      choices = c("Blues" = "Blues",
@@ -240,7 +227,8 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          selectInput(inputId = "hr_mth",
                                                      label = "Hour/Month Interval:",
                                                      choices = c("Month" = "YEAR_MONTH",
-                                                                 "Hour" = "TIME_PER_HOUR"),
+                                                                 "Peak Hour" = "PEAK_HR_CAT",
+                                                                 "Both" = "BOTH"),
                                                      selected = "YEAR_MONTH")
                                          
                                      ), # 2nd conditionalPanel
@@ -404,61 +392,169 @@ server <- function(input, output, session){
         }
     })
     
+    # # Choropleth
+    # output$cmap <- renderPlot({
+    # 
+    #     sub_df <- od_pop_sz %>% filter(DAY_TYPE==input$dt)%>%
+    #         group_by(!!!syms(input$o_d), !!!syms(input$hr_mth))  %>%
+    #         summarise(TOTAL_TRIPS = sum(TRIPS))  %>%
+    #         ungroup()  %>%
+    #         select(input$o_d, input$hr_mth, TOTAL_TRIPS)  %>%
+    #         pivot_wider(names_from=input$hr_mth,  values_from=TOTAL_TRIPS)
+    # 
+    #     # Replace NA values with 0
+    #     sub_df[is.na(sub_df)] = 0
+    # 
+    #     # Get unique values of grp_by value
+    #     unique_grp <- sort(unique(od_pop_sz[[input$hr_mth]]))
+    # 
+    #     # if categorical variable is numeric, change to character only after sorting
+    #     if (input$hr_mth=="TIME_PER_HOUR"){
+    #         unique_grp <- as.character(sort(as.numeric(unique_grp)))
+    #     }
+    # 
+    #     # Perform left join
+    #     mpsz_od_grp <- left_join(mpsz_sf, sub_df, by = c('SUBZONE_C' = input$o_d))
+    # 
+    #     # Create list to store choropleth maps
+    #     cmap_list <- vector(mode = "list", length = length(unique_grp))
+    # 
+    #     for (i in 1:length(unique_grp)) {
+    #         cmap <- tm_shape(mpsz_od_grp) +
+    #             tm_fill(col = unique_grp[[i]],
+    #                     palette = input$colour_cmap,
+    #                     style = input$classification,
+    #                     n = 5) +
+    #             tm_borders(lwd = 0.4,
+    #                        alpha = 0.5) +
+    # 
+    #             tm_layout(panel.show = TRUE,
+    #                       panel.labels = unique_grp[[i]],
+    #                       panel.label.color = 'black',
+    #                       panel.label.size = 1.5,
+    #                       inner.margins = 0,
+    #                       legend.text.size = 1,
+    #                       legend.position = c("left", "bottom"),
+    #                       frame=T) +
+    #             tm_scale_bar(text.size = 1,
+    #                          position="right")  +
+    #             tm_view(set.zoom.limits = c(11,13))
+    # 
+    #         cmap_list[[i]] <- cmap
+    #     }
+    #     ncol_list_c <- c(cmap_list, ncol=3)
+    #     do.call(tmap_arrange, ncol_list_c)
+    # }, height=650, width=1100)
+    
+    
+    
     # Choropleth
+    
+    get.var <- function(vname,df) {
+        v <- df[vname] %>% 
+            st_set_geometry(NULL)
+        v <- unname(v[[1]])
+        return(v)
+    }
+    
     output$cmap <- renderPlot({
+        
+        if (input$hr_mth=="YEAR_MONTH") {
 
-        sub_df <- od_pop_sz %>% filter(DAY_TYPE==input$dt)%>%
-            group_by(!!!syms(input$o_d), !!!syms(input$hr_mth))  %>%
-            summarise(TOTAL_TRIPS = sum(TRIPS))  %>%
-            ungroup()  %>%
-            select(input$o_d, input$hr_mth, TOTAL_TRIPS)  %>%
-            pivot_wider(names_from=input$hr_mth,  values_from=TOTAL_TRIPS)
+            
+            sub_df <- od_pop_sz %>% filter(DAY_TYPE==input$dt) %>% 
+                group_by(!!!syms(input$o_d), !!!syms(input$hr_mth)) %>%
+                summarise(TRIPS = sum(TRIPS)) %>%
+                ungroup() %>%
+                select(input$o_d, input$hr_mth, TRIPS) %>%
+                pivot_wider(names_from = input$hr_mth, values_from=TRIPS)
+        }
+        
+        if (input$hr_mth=="PEAK_HR_CAT") {
+            
+            df <- od_pop_sz %>% filter(PEAK_HR_CAT !="Not peak hour")
+            # print(df)
 
+            sub_df <- df %>% filter(DAY_TYPE==input$dt) %>%
+                group_by(!!!syms(input$o_d), PEAK_HR_CAT) %>%
+                summarise(TRIPS = sum(TRIPS)) %>%
+                ungroup() %>%
+                select(input$o_d, PEAK_HR_CAT, TRIPS) %>%
+                pivot_wider(names_from=PEAK_HR_CAT, values_from=TRIPS)
+
+        }
+        
+        if (input$hr_mth=="BOTH") {
+            df <- od_pop_sz %>% filter(PEAK_HR_CAT !="Not peak hour")
+            
+            sub_df <- df %>% filter(DAY_TYPE==input$dt) %>%
+                group_by(!!!syms(input$o_d), YEAR_MONTH, PEAK_HR_CAT) %>%
+                summarise(TRIPS = sum(TRIPS)) %>%
+                ungroup() %>%
+                select(input$o_d, YEAR_MONTH, PEAK_HR_CAT, TRIPS) %>%
+                pivot_wider(names_from=c(YEAR_MONTH, PEAK_HR_CAT),
+                            values_from=(TRIPS))
+        }
+        
         # Replace NA values with 0
         sub_df[is.na(sub_df)] = 0
-
+        
         # Get unique values of grp_by value
-        unique_grp <- sort(unique(od_pop_sz[[input$hr_mth]]))
-
-        # if categorical variable is numeric, change to character only after sorting
-        if (input$hr_mth=="TIME_PER_HOUR"){
-            unique_grp <- as.character(sort(as.numeric(unique_grp)))
+        if (input$hr_mth=="YEAR_MONTH"){
+            unique_grp <- sort(unique(od_pop_sz[[input$hr_mth]]))
         }
-
+        
+        if (input$hr_mth=="PEAK_HR_CAT"){
+            unique_grp <- sort(unique(df[[input$hr_mth]]))
+        }
+        
+        if (input$hr_mth=="BOTH"){
+            df$concat <- paste(df$YEAR_MONTH, df$PEAK_HR_CAT, sep="_")
+            
+            unique_grp <- sort(unique(df$concat))
+        }
+        
         # Perform left join
         mpsz_od_grp <- left_join(mpsz_sf, sub_df, by = c('SUBZONE_C' = input$o_d))
+        
+        # Replace NA values with 0
+        mpsz_od_grp[is.na(mpsz_od_grp)] = 0
+        
+        # # Remove NA values
+        # mpsz_od_grp <- mpsz_od_grp[!rowSums(is.na(mpsz_od_grp))!=0,]
+        # 
+        # # Check for NA values again
+        # mpsz_od_grp[rowSums(is.na(mpsz_od_grp))!=0,]
 
-        # Create list to store choropleth maps
-        cmap_list <- vector(mode = "list", length = length(unique_grp))
-
-        for (i in 1:length(unique_grp)) {
-            cmap <- tm_shape(mpsz_od_grp) +
-                tm_fill(col = unique_grp[[i]],
-                        palette = input$colour_cmap,
-                        style = input$classification,
-                        n = 5) +
-                tm_borders(lwd = 0.4,
-                           alpha = 0.5) +
-
-                tm_layout(panel.show = TRUE,
-                          panel.labels = unique_grp[[i]],
-                          panel.label.color = 'black',
-                          panel.label.size = 1.5,
-                          inner.margins = 0,
-                          legend.text.size = 1,
-                          legend.position = c("left", "bottom"),
-                          frame=T) + 
-                tm_scale_bar(text.size = 1,
-                             position="right")  +
-                tm_view(set.zoom.limits = c(11,13))
-
-            cmap_list[[i]] <- cmap
+        
+        # Creating the percentmap function
+        percentmap <- function(vnam, df, legtitle=NA){
+            percent <- c(0,.01, .1,.5,.9,.99,1)
+            var <- get.var(vnam,df)
+            bperc <- quantile (var, percent)
+            tm_shape (mpsz_od_grp) +
+                tm_polygons() 
+                tm_shape(df)+
+                tm_fill(vnam, title=legtitle, breaks=bperc, palette=input$colour_cmap,
+                        labels = c("< 1%", "1%-10%", "10%-50%", "50%-90%",
+                                   "90%-99%", ">99%"))+
+                tm_borders(lwd=0.1, alpha = 0.3) +
+                tm_layout(legend.show = TRUE)
+            
         }
-        ncol_list_c <- c(cmap_list, ncol=3)
-        do.call(tmap_arrange, ncol_list_c)
+        
+        # Create list to store choropleth maps
+        cmap_list_percentile <- vector(mode = "list", length = length(unique_grp))
+        for (i in 1:length(unique_grp)) {
+            
+            cmap <- percentmap(unique_grp[[i]], mpsz_od_grp)
+            cmap_list_percentile[[i]] <- cmap
+        }
+
+            ncol_list_c <- c(cmap_list_percentile, ncol=3)
+            do.call(tmap_arrange, ncol_list_c)
+
     }, height=650, width=1100)
-    
-    
 
  
 
