@@ -18,6 +18,7 @@ library(sp)
 library(caret)
 library(shinythemes)
 library(shinyjs)
+# library(cowplot)
 
 ## 4.1 Import Geospatial data
 mpsz_sf <- st_read(dsn = "data/geospatial", layer="MP14_SUBZONE_WEB_PL")
@@ -133,7 +134,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                          during these periods. While this does solve the issue, we wonder about the sustainability of increasing the frequency of
                                                          public transport - particularly buses, when public transportation ridership is going to increase over the years.")),
                                                column(5,
-                                                   imageOutput("sg_map", width = "800%", height = "600px"),
+                                                   imageOutput("sg_map", width = "800%", height = "400px"),
                                                    tags$a(href="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.mappr.co%2Fcounties%2Fregions-of-singapore%2F&psig=AOvVaw0rGtOx1ubkZxNSK9jB9YM6&ust=1636952115136000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCPCrvP2Hl_QCFQAAAAAdAAAAABAN", "Source: Mappr.co")
                                                )
                                               ), # fluid row
@@ -164,8 +165,15 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                            br(),
                                            
                                            h3("R Blogdown Page"),
-                                           h4("Do check out our R blogdown page for the full report here", a(href="https://flosg-is415.netlify.app/about.html", "here."))
+                                           h4("Do check out our R blogdown page for the full report", a(href="https://flosg-is415.netlify.app/about.html", "here.")),
+                                           br(),
                                            
+                                           h3("User guide"),
+                                           h4("Do check out our user guide", a(href="", "here.")),
+                                           br(),
+                                           
+                                           h3("Github"),
+                                           h4("Do check out our Github for the codes", a(href="https://github.com/geniceee/IS415_G1T1_Project", "here.")),
                                            
                                            
                                 ) # About mainPanel
@@ -175,7 +183,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                     # EDA
                     tabPanel("EDA", fluid = TRUE,
                              sidebarLayout(
-                                 sidebarPanel(
+                                 sidebarPanel(fluid = TRUE, width = 3,
                                      
                                      # Spatial Point Map of Bus Stops
                                      conditionalPanel(
@@ -192,29 +200,15 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                      min = 0.3,
                                                      max = 1,
                                                      value = c(0.4)),
-                                         sliderInput(inputId = "size",
-                                                     label = "Size of Points",
-                                                     min = 0.01,
-                                                     max = 0.1,
-                                                     value = c(0.03))
+                                         checkboxInput(inputId = "showData",
+                                                       label = "Show data table",
+                                                       value = TRUE)
+                                         
                                      ), # 1st conditionalPanel
                                      
                                      # Choropleth
                                      conditionalPanel(
                                          'input.EDA_var === "Choropleth Maps"',
-                                         selectInput(inputId = "classification",
-                                                     label = "Classification method",
-                                                     choices = c("fixed" = "fixed",
-                                                                 "sd" = "sd",
-                                                                 "equal" = "equal",
-                                                                 "pretty" = "pretty",
-                                                                 "quantile" = "quantile",
-                                                                 "kmeans" = "kmeans",
-                                                                 "hclust" = "hclust",
-                                                                 "bclust" = "bclust",
-                                                                 "fisher" = "fisher",
-                                                                 "jenks" = "jenks"),
-                                                     selected = "pretty"), 
                                          selectInput(inputId = "colour_cmap",
                                                      label = "Colour scheme",
                                                      choices = c("Blues" = "Blues",
@@ -240,7 +234,8 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          selectInput(inputId = "hr_mth",
                                                      label = "Hour/Month Interval:",
                                                      choices = c("Month" = "YEAR_MONTH",
-                                                                 "Hour" = "TIME_PER_HOUR"),
+                                                                 "Peak Hour" = "PEAK_HR_CAT",
+                                                                 "Both" = "BOTH"),
                                                      selected = "YEAR_MONTH")
                                          
                                      ), # 2nd conditionalPanel
@@ -259,14 +254,14 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                                      choices = c("Month" = "YEAR_MONTH",
                                                                  "Peak Hour" = "PEAK_HR_CAT",
                                                                  "Both" = "BOTH"),
-                                                     selected = "YEAR_MONTH")
-
-                                         # sliderInput(inputId = "maxthres",
-                                         #             label = "Maximum Threshold:",
-                                         #             min = 10000,
-                                         #             max = 100000,
-                                         #             value = 50000,
-                                         #             step = 10000),
+                                                     selected = "YEAR_MONTH"),
+                                         
+                                         sliderInput(inputId = "pct",
+                                                     label = "Top Percentage:",
+                                                     min = 0,
+                                                     max = 2,
+                                                     value = 2,
+                                                     step = 0.5),
 
 
                                      ) # 3rd conditionalPanel
@@ -277,8 +272,9 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                  mainPanel(
                                      tabsetPanel(
                                          id="EDA_var",
-                                         tabPanel("Spatial Points", tmapOutput("pt_bus_stop")),
-                                         # DT::dataTableOutput(outputId = "aTable") 
+                                         tabPanel("Spatial Points", tmapOutput("pt_bus_stop"),
+                                                  DT::dataTableOutput(outputId = "pt_table")),
+                                         # DT::dataTableOutput(outputId = "pt_table"),
                                          tabPanel("Choropleth Maps", plotOutput(outputId =  "cmap", width="100%")),
                                          tabPanel("Desire lines Maps", plotOutput(outputId =  "dmap", width="100%"))
                                      )
@@ -293,11 +289,14 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                     # Spatial Interaction Model
                     tabPanel("SIM", fluid = TRUE,
                              sidebarLayout(
-                                 sidebarPanel(
+                                 sidebarPanel(fluid = TRUE, width = 3,
                                      
                                      # SIM
                                      conditionalPanel(
-                                         'input.SIM_var === "SIM"',
+                                         'input.SIM_var === "SIM Scatterplot"',
+                                         h4("Please select the parameters before proceeding to the other tabs"),
+                                         br(),
+                                         
                                          selectInput(inputId = "colour_sim",
                                                      label = "Colour of Points",
                                                      choices = c("Blue" = "blue",
@@ -315,10 +314,10 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          # Selections for Unconstrained
                                          conditionalPanel(
                                              condition = "input.sim_model =='Unconstrained'",
-                                             radioButtons("un_o_var", label = h3("Origin"),
+                                             radioButtons("un_o_var", label = h5("Origin"),
                                                           choices = list("Population" = "O_TOTAL_POP", "Income" = "O_MONTHLY_INCOME"), 
                                                           selected = "O_TOTAL_POP"),
-                                             radioButtons("un_d_var", label = h3("Destination"),
+                                             radioButtons("un_d_var", label = h5("Destination"),
                                                           choices = list("Population" = "D_TOTAL_POP", "Income" = "D_MONTHLY_INCOME"), 
                                                           selected = "D_MONTHLY_INCOME")
                                          ),
@@ -326,7 +325,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          conditionalPanel(
                                              condition = "input.sim_model =='Origin'",
                                              selectInput(inputId = "o_var",
-                                                         label = "Population/Income:",
+                                                         label = "Destination:",
                                                          choices = c("Population" = "D_TOTAL_POP",
                                                                      "Income" = "D_MONTHLY_INCOME"),
                                                          selected = "D_TOTAL_POP")
@@ -335,34 +334,55 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          conditionalPanel(
                                              condition = "input.sim_model =='Destination'",
                                              selectInput(inputId = "d_var",
-                                                         label = "Population/Income:",
+                                                         label = "Origin:",
                                                          choices = c("Population" = "O_TOTAL_POP",
                                                                      "Income" = "O_MONTHLY_INCOME"),
                                                          selected = "D_TOTAL_POP")
                                          )
 
-                                     ) # 1st conditionalPanel
+                                     ), # 1st conditionalPanel
+                                
                                      
                                  ), # 2nd sidebarPanel
                                  
                                  mainPanel(
                                      tabsetPanel(
                                          id="SIM_var",
-                                         tabPanel("SIM", plotOutput(outputId = "sim"),
-                                                  tabsetPanel(
-                                                      tabPanel(
-                                                          "SIM Summary", verbatimTextOutput(outputId = "sim_summary")
-                                                      ),
-                                                      tabPanel(
-                                                          "Original Matrix", tableOutput(outputId = "original_matrix")
-                                                      ),
-                                                      tabPanel(
-                                                          "SIM Matrix", tableOutput(outputId = "sim_matrix")
-                                                      )
-                                                  ),
-                                                  "SIM Results", verbatimTextOutput(outputId = "sim_results")
-                                            )
+                                         tabPanel("SIM Scatterplot", plotOutput(outputId = "sim"),
+                                                  br(),
+                                                  h2("What is Spatial Interaction Model?"),
+                                                  h4("Spatial Interaction Models aim to explain commuter flows from the spatial perspective.
+                                                     Commuter flows are regarded as an interaction between origins and destinations."),
+                                                  br(),
+                                                  
+                                                  h3("Unconstrained Spatial Interaction Model"),
+                                                  h4("Both Origin and Destinations are unknown and therefore does not have any spatial configurations of origins and destinations.
+                                                     It ensures that the predicted number of flows is equal to the known flows."),
+                                                  br(),
+                                                  
+                                                  h3("Origin Constrained Spatial Interaction Model"),
+                                                  h4("Here, Origin is known and Destination is unknown. It deals  with outgoing flows in terms of ensuring that the sum of the estimated outflows observed outflows from each origin is the same."),
+                                                  br(),
+                                                  
+                                                  h3("Destination Constrained Spatial Interaction Model"),
+                                                  h4("Here, Destination is known and Origin is unknown. It deals with incoming flows in terms of ensuring that the sum of the estimated and observed inflows for each destination is the same."),
+                                                  br(),
+                                                  
+                                                  h3("Doubly Constrained Spatial Interaction Model"),
+                                                  h4("Both Origin and Destinations are known. It ensures that both of these pairs of sums are the same.")),
                                          
+                                          tabPanel(
+                                              "SIM Summary", verbatimTextOutput(outputId = "sim_summary"),
+                                          ),
+                                          tabPanel(
+                                              "Original Matrix", tableOutput(outputId = "original_matrix")
+                                          ),
+                                          tabPanel(
+                                              "SIM Matrix", tableOutput(outputId = "sim_matrix")
+                                          ),
+                                          tabPanel(
+                                              "SIM Results", verbatimTextOutput(outputId = "sim_results")
+                                          )     
 
                                          # DT::dataTableOutput(outputId = "aTable")
                                      )
@@ -383,68 +403,139 @@ server <- function(input, output, session){
     
     # Spatial Points Map
     output$pt_bus_stop <- renderTmap({
-        tm_shape(mpsz_sf) +
-            tm_polygons() +
-            tm_shape(bus_sf) +
-            tm_dots(alpha = input$alpha,
-                    col = input$colour_pmap,
-                    size = input$size)
+        # tm_shape(mpsz_sf) +
+            # tm_polygons() +
+                tm_shape(bus_sf) + # , bbox=st_bbox(bus_sf)
+                tm_dots(alpha = input$alpha,
+                    col = input$colour_pmap) +
+            tm_view(set.zoom.limits = c(11,13))+
+        tm_basemap("OpenStreetMap")
     })
     
+    # Spatial Points data table
+    output$pt_table <- DT::renderDataTable({
+        if(input$showData) {
+            DT::datatable(data = bus_sf,
+                          options = list(pageLength  = 4),
+                          rownames = FALSE)
+        }
+    })
+
+    
     # Choropleth
+    
+    get.var <- function(vname,df) {
+        v <- df[vname] %>% 
+            st_set_geometry(NULL)
+        v <- unname(v[[1]])
+        return(v)
+    }
+    
     output$cmap <- renderPlot({
+        
+        if (input$hr_mth=="YEAR_MONTH") {
 
-        sub_df <- od_pop_sz %>% filter(DAY_TYPE==input$dt)%>%
-            group_by(!!!syms(input$o_d), !!!syms(input$hr_mth))  %>%
-            summarise(TOTAL_TRIPS = sum(TRIPS))  %>%
-            ungroup()  %>%
-            select(input$o_d, input$hr_mth, TOTAL_TRIPS)  %>%
-            pivot_wider(names_from=input$hr_mth,  values_from=TOTAL_TRIPS)
+            
+            sub_df <- od_pop_sz %>% filter(DAY_TYPE==input$dt) %>% 
+                group_by(!!!syms(input$o_d), !!!syms(input$hr_mth)) %>%
+                summarise(TRIPS = sum(TRIPS)) %>%
+                ungroup() %>%
+                select(input$o_d, input$hr_mth, TRIPS) %>%
+                pivot_wider(names_from = input$hr_mth, values_from=TRIPS)
+        }
+        
+        if (input$hr_mth=="PEAK_HR_CAT") {
+            
+            df <- od_pop_sz %>% filter(PEAK_HR_CAT !="Not peak hour")
+            # print(df)
 
+            sub_df <- df %>% filter(DAY_TYPE==input$dt) %>%
+                group_by(!!!syms(input$o_d), PEAK_HR_CAT) %>%
+                summarise(TRIPS = sum(TRIPS)) %>%
+                ungroup() %>%
+                select(input$o_d, PEAK_HR_CAT, TRIPS) %>%
+                pivot_wider(names_from=PEAK_HR_CAT, values_from=TRIPS)
+
+        }
+        
+        if (input$hr_mth=="BOTH") {
+            df <- od_pop_sz %>% filter(PEAK_HR_CAT !="Not peak hour")
+            
+            sub_df <- df %>% filter(DAY_TYPE==input$dt) %>%
+                group_by(!!!syms(input$o_d), YEAR_MONTH, PEAK_HR_CAT) %>%
+                summarise(TRIPS = sum(TRIPS)) %>%
+                ungroup() %>%
+                select(input$o_d, YEAR_MONTH, PEAK_HR_CAT, TRIPS) %>%
+                pivot_wider(names_from=c(YEAR_MONTH, PEAK_HR_CAT),
+                            values_from=(TRIPS))
+        }
+        
         # Replace NA values with 0
         sub_df[is.na(sub_df)] = 0
-
+        
         # Get unique values of grp_by value
-        unique_grp <- sort(unique(od_pop_sz[[input$hr_mth]]))
-
-        # if categorical variable is numeric, change to character only after sorting
-        if (input$hr_mth=="TIME_PER_HOUR"){
-            unique_grp <- as.character(sort(as.numeric(unique_grp)))
+        if (input$hr_mth=="YEAR_MONTH"){
+            unique_grp <- sort(unique(od_pop_sz[[input$hr_mth]]))
         }
-
+        
+        if (input$hr_mth=="PEAK_HR_CAT"){
+            unique_grp <- sort(unique(df[[input$hr_mth]]))
+        }
+        
+        if (input$hr_mth=="BOTH"){
+            df$concat <- paste(df$YEAR_MONTH, df$PEAK_HR_CAT, sep="_")
+            
+            unique_grp <- sort(unique(df$concat))
+        }
+        
         # Perform left join
         mpsz_od_grp <- left_join(mpsz_sf, sub_df, by = c('SUBZONE_C' = input$o_d))
+        
+        # Replace NA values with 0
+        mpsz_od_grp[is.na(mpsz_od_grp)] = 0
+        
+        # # Remove NA values
+        # mpsz_od_grp <- mpsz_od_grp[!rowSums(is.na(mpsz_od_grp))!=0,]
+        # 
+        # # Check for NA values again
+        # mpsz_od_grp[rowSums(is.na(mpsz_od_grp))!=0,]
 
-        # Create list to store choropleth maps
-        cmap_list <- vector(mode = "list", length = length(unique_grp))
-
-        for (i in 1:length(unique_grp)) {
-            cmap <- tm_shape(mpsz_od_grp) +
-                tm_fill(col = unique_grp[[i]],
-                        palette = input$colour_cmap,
-                        style = input$classification,
-                        n = 5) +
-                tm_borders(lwd = 0.05,
-                           alpha = 0.5) +
-
-                tm_layout(panel.show = TRUE,
-                          panel.labels = unique_grp[[i]],
-                          panel.label.color = 'black',
-                          panel.label.size = 1.5,
-                          inner.margins = 0,
-                          legend.text.size = 1,
-                          legend.position = c("left", "bottom"),
-                          frame=T) + 
-                tm_scale_bar(text.size = 1,
-                             position="right")
-
-            cmap_list[[i]] <- cmap
+        
+        # Creating the percentmap function
+        percentmap <- function(vnam, df, legtitle=NA){
+            percent <- c(0,.01, .1,.5,.9,.99,1)
+            var <- get.var(vnam,df)
+            bperc <- quantile (var, percent)
+            tm_shape (mpsz_od_grp) +
+                tm_polygons() 
+                tm_shape(df)+
+                tm_fill(vnam, title=legtitle, breaks=bperc, palette=input$colour_cmap,
+                        labels = c("< 1%", "1%-10%", "10%-50%", "50%-90%",
+                                   "90%-99%", ">99%"))+
+                tm_borders(lwd=0.1, alpha = 0.3) +
+                    tm_layout(panel.show = TRUE,
+                              panel.labels = unique_grp[[i]],
+                              panel.label.color = 'black',
+                              panel.label.size = 0.7,
+                              inner.margins = 0,
+                              legend.text.size = 1,
+                              frame=T) +
+                    tm_scale_bar(text.size = 1)
+            
         }
-        ncol_list_c <- c(cmap_list, ncol=3)
-        do.call(tmap_arrange, ncol_list_c)
-    }, height=1000)
-    
-    
+        
+        # Create list to store choropleth maps
+        cmap_list_percentile <- vector(mode = "list", length = length(unique_grp))
+        for (i in 1:length(unique_grp)) {
+            
+            cmap <- percentmap(unique_grp[[i]], mpsz_od_grp)
+            cmap_list_percentile[[i]] <- cmap
+        }
+
+            ncol_list_c <- c(cmap_list_percentile, ncol=3)
+            do.call(tmap_arrange, ncol_list_c)
+
+    }, height=650, width=1100)
 
  
 
@@ -481,27 +572,46 @@ server <- function(input, output, session){
         #Replace NA values with 0
         sub_df[is.na(sub_df)] = 0
         
+        # Remove Intra zonal flows
+        df_inter <- sub_df %>%
+            filter(ORIGIN_SZ_C != DEST_SZ_C)
+        
+        # print(df_inter)
+        
+        # Sort by descending order
+        df_inter <- df_inter %>% arrange(desc(TRIPS))
+
+        # Get top rows to show based on input parameter percentage
+        top_n <- nrow(df_inter) * input$pct /100
+
+        df_inter <- head(df_inter, top_n)
+
+        #Get min of trips
+        min_trip <- min(df_inter$TRIPS)
+
+        # Get max of trips
+        max_trip <- max(df_inter$TRIPS)
+
+        # Get the range then divide by 5 to get the legend interval
+        leg_int <- (max_trip-min_trip) / 5
+
+
         # Get unique values of grp_by value
-        if (input$hr_mth_d=="YEAR_MONTH" |  input$hr_mth_d=="PEAK_HR_CAT"){ # 
-            unique_grp <- sort(unique(sub_df[[input$hr_mth_d]]))
+        if (input$hr_mth_d=="YEAR_MONTH" |  input$hr_mth_d=="PEAK_HR_CAT"){ #
+            unique_grp <- sort(unique(df_inter[[input$hr_mth_d]]))
         }
-        
+
         if (input$hr_mth_d=="BOTH"){
-            sub_df$concat <- paste(sub_df$YEAR_MONTH, sub_df$PEAK_HR_CAT)
-            
-            unique_grp <- sort(unique(sub_df$concat))
+            df_inter$concat <- paste(df_inter$YEAR_MONTH, df_inter$PEAK_HR_CAT)
+
+            unique_grp <- sort(unique(df_inter$concat))
         }
-        
+
 
         # Take required columns from mpsz
         mpsz_sf_req = mpsz_sf[, c('SUBZONE_C')]
 
         dlines_list <- vector(mode = "list", length = length(unique_grp))
-
-        # Remove Intra zonal flows
-        df_inter <- sub_df["ORIGIN_SZ_C" != "DEST_SZ_C",]
-        # %>%
-        #   filter(TRIPS < maxthres)
 
 
         for (i in 1:length(unique_grp)) {
@@ -519,40 +629,36 @@ server <- function(input, output, session){
             if (input$hr_mth_d == "BOTH") {
                 df_filter <- df_inter %>% filter(concat == unique_grp[[i]])
             }
-            
+
 
             # od2line function
             network_inter <- od2line(flow = df_filter, zones = mpsz_sf_req)
 
-            # Filter only flows containing above a threshold level of flows
-            # Here we fix the minthres to get some valuable insights
-            desire_lines_top <- network_inter %>% filter(TRIPS >= 10000)
-
-            # Set suitable width
-            wd_width <- max(desire_lines_top$TRIPS /
-                                max(desire_lines_top$TRIPS)) * 2
 
             dmap <- tm_shape(mpsz_sf) +
                 tm_borders("grey25", alpha=.3) +
-                tm_shape(desire_lines_top) +
-                tm_lines(palette="Paired", col="TRIPS", lwd = wd_width) +
+                tm_shape(network_inter) +
+                tm_lines(palette="plasma",
+                         col="TRIPS",
+                         breaks = c(0, leg_int, leg_int*2, leg_int*3, leg_int*4, leg_int*5, leg_int*6),
+                         lwd=2
+                ) +
                 tm_layout(panel.show = TRUE,
                           panel.labels = unique_grp[[i]],
                           panel.label.color = 'black',
-                          panel.label.size = 1.5,
+                          panel.label.size = 0.7,
                           inner.margins = 0,
                           legend.text.size = 1,
                           frame=T) +
                 tm_scale_bar(text.size = 1)
-            
 
 
             dlines_list[[i]] <- dmap
-            }
+        }
         ncol_list <- c(dlines_list, ncol=3)
         do.call(tmap_arrange, ncol_list)
 
-    }, height=900)
+    }, height=650, width=1100)
     
     
 
@@ -595,7 +701,10 @@ server <- function(input, output, session){
         print(ggplot(data=df_inter,
                      aes(y = TRIPS,
                          x = `simFitted`))+
-                  geom_point(color=input$colour_sim, fill="light blue"))
+                  geom_point(color=input$colour_sim, fill="light blue") +
+                  xlim(0,300000) +
+                  ylim(0,400000)
+                  )
 
         
         output$sim_results <- renderPrint({
@@ -610,8 +719,8 @@ server <- function(input, output, session){
     
     # About SMU logo
     output$smu <- renderImage({
-        width <-  session$clientData$output_news_map_width
-        height <-  session$clientData$output_news_map_height
+        width <-  0.38 * session$clientData$output_news_map_width
+        height <- 0.32 * session$clientData$output_news_map_height
         
         list(
             src = "www/smu.png",
@@ -631,8 +740,8 @@ server <- function(input, output, session){
         list(
             src = "www/sg_map.jpeg",
             contentType = "image/jpeg",
-            width = 700,
-            height = 600,
+            width = 500,
+            height = 400,
             alt = "Singapore Map"
         )
     }, deleteFile = FALSE)

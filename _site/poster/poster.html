@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<!--
+Font-awesome icons ie github or twitter
+-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/brands.css" integrity="sha384-n9+6/aSqa9lBidZMRCQHTHKJscPq6NW4pCQBiMmHdUCvPN8ZOg2zJJTkC7WIezWv" crossorigin="anonymous">
+
+<!--
+Google fonts api stuff
+-->
+
+
+
+<title>Generate Reproducible &amp; Live HTML and PDF Conference Posters Using RMarkdown</title>
+
+<script src="poster_files/header-attrs-2.10/header-attrs.js"></script>
+
+
+
+
+
+<style>
+@page {
+size: 45in 38in;
+margin: 0;
+padding: 0;
+}
+body {
+margin: 0;
+font-size: 43px;
+width: 45in;
+height: 38in;
+padding: 0;
+text-align: justify;
+font-family: Palatino;
+}
+.poster_wrap {
+width: 45in;
+height: 38in;
+padding: 0cm;
+}
+.title_container {
+width: 45in;
+height: calc(38in * 0.15);
+overflow: hidden;
+background-color: #f44336;
+border: 0 solid #000000;
+}
+.logo_left {
+float: left;
+width: 10%;
+height: 100%;
+background-color: #f44336;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.logo_right {
+float: right;
+width: 10%;
+height: 100%;
+background-color: #f44336;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.poster_title {
+text-align: center;
+position: relative;
+float: left;
+width: 80%;
+height: 100%;
+color: #FFFFFF;
+top: 50%;
+transform: translateY(-50%);
+-webkit-transform: translateY(-50%);
+}
+#title {
+font-family: Palatino;
+}
+/* unvisited link */
+a:link {
+color: #e06666;
+}
+.mybreak {
+  break-before: column;
+}
+/* visited link */
+a:visited {
+color: #e06666;
+}
+
+/* mouse over link */
+a:hover {
+color: #e06666;
+}
+
+/* selected link */
+a:active {
+color: #e06666;
+}
+.poster_body {
+-webkit-column-count: 3; /* Chrome, Safari, Opera */
+-moz-column-count: 3; /* Firefox */
+column-count: 3;
+-webkit-column-fill: auto;
+-moz-column-fill: auto;
+column-fill: auto;
+-webkit-column-rule-width: 1mm;
+-moz-column-rule-width: 1mm;
+column-rule-width: 1mm;
+-webkit-column-rule-style: dashed;
+-moz-column-rule-style: dashed;
+column-rule-style: dashed;
+-webkit-column-rule-color: #f44336;
+-moz-column-rule-color: #f44336;
+column-rule-color: #f44336;
+column-gap: 1em;
+padding-left: 0.5em;
+padding-right: 0.5em;
+height: 100%;
+color: #000000
+background-color: #ffffff;
+}
+.poster_title h1 {
+font-size: 75pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+.poster_body_wrap{
+width: calc(45in + 0 + 0);
+height: calc(38in * 0.83);
+padding-top: calc(38in * 0.005);
+padding-bottom: calc(38in * 0.01);
+background-color: #ffffff;
+}
+.poster_title h3 {
+color: #000000;
+font-size: 50pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+.poster_title h3 > sup {
+  font-size: 35pt;
+  margin-left: 0.02em;
+}
+.poster_title h5 {
+color: #FFFFFF;
+font-size: 35pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+img {
+margin-top: 2cm;
+margin-bottom: 0;
+}
+.section {
+  padding: 0.2em;
+}
+.poster_body h1 {
+text-align: center;
+color: #FFFFFF;
+font-size: 65pt;
+border: 2mm solid #f44336;
+background-color: #f44336;
+border-radius: 4mm 0mm;
+margin-top: 2mm;
+margin-bottom: 2mm;
+font-weight: normal;
+}
+.poster_body h2 {
+color: #000000;
+font-size: 40pt;
+padding-left: 4mm;
+font-weight: normal;
+}
+.span {
+width: 200%;
+}
+/* center align leaflet map,
+from https://stackoverflow.com/questions/52112119/center-leaflet-in-a-rmarkdown-document */
+.html-widget {
+margin: auto;
+position: sticky;
+margin-top: 2cm;
+margin-bottom: 2cm;
+}
+.leaflet.html-widget.html-widget-static-bound.leaflet-container.leaflet-touch.leaflet-fade-anim.leaflet-grab.leaflet-touch-drag.leaflet-touch-zoom {
+position: sticky;
+width: 100%;
+}
+pre.sourceCode.r {
+background-color: #dddddd40;
+border-radius: 4mm;
+padding: 4mm;
+width: 75%;
+/* align-items: center; */
+margin: auto;
+padding-left: 2cm;
+}
+code.sourceCode.r{
+background-color: transparent;
+font-size: 20pt;
+border-radius: 2mm;
+}
+.caption {
+font-size: 25pt;
+}
+.table caption {
+font-size: 25pt;
+padding-bottom: 3mm;
+
+}
+code {
+font-size: 1em;
+font-family: monospace;
+background-color: #00000024;
+color: #f44336;
+padding: 1.2mm;
+border-radius: 2mm;
+}
+.poster_title code {
+font-size: 1em;
+}
+table {
+font-size: 40px;
+margin: auto;
+border-top: 3px solid #666;
+border-bottom: 3px solid #666;
+}
+table thead th {
+border-bottom: 3px solid #ddd;
+}
+td {
+padding: 8px;
+}
+th {
+padding: 15px;
+}
+caption {
+margin-bottom: 10px;
+}
+.poster_body p {
+margin-right: 4mm;
+margin-left: 4mm;
+margin-top: 6mm;
+margin-bottom: 10mm;
+}
+.poster_body ol {
+margin-right: 4mm;
+margin-left: 4mm;
+}
+#ul {
+margin-right: 4mm;
+margin-left: 4mm;
+}
+.references p {
+font-size: 20pt;
+}
+.orcid img {
+  width: 1em;
+}
+</style>
+</head>
+<body>
+
+
+<div class="poster_wrap">
+<div class="title_container">
+<!-- Left Logo  -->
+<div class="logo_left">
+</div>
+<!-- Poster Title -->
+<div class= "poster_title">
+<h1 id="title">Generate Reproducible &amp; Live HTML and PDF Conference Posters Using RMarkdown</h1>
+<h3 id="author">Genice Goh<sup>1</sup>, Nor Aisyah Bte Ajit<sup>1</sup>, Wong Wei Ling<sup>1</sup></h3><br>
+<h5 id="affiliation"><sup>1</sup> School of Information Systems, Singapore Management University</h5>
+</div>
+<!-- Right Logo  -->
+<div class="logo_right">
+</div>
+</div>
+
+<div class='poster_body_wrap'>
+<div class='poster_body'>
+<div id="issues-and-problems" class="section level1">
+<h1>Issues and Problems</h1>
+<p>Peak hour crowds in public transportation have always been a problem in Singapore. The Land Transport Authority (LTA) - Singapore has implemented a variety of measures to address this issue by increasing the frequencies of trains and buses during peak hours, and giving fare discounts to those who travel earlier than the morning peak hours.</p>
+<p><br></p>
+</div>
+<div id="motivation" class="section level1">
+<h1>Motivation</h1>
+<p>Since the pandemic, even though there are people who are less willing to take the public transport, there is still a crowd in ridership at certain times. An example would be when Mass Rapid Transport (MRT) services broke down in October 2020, this resulted in bus stops being packed with commuters looking for alternatives to get home. This is a cause for concern for commuters who are conscious of COVID-19 risks as it is tough to maintain a safe distance from everyone around them.</p>
+<p>The government has implemented measures to address peak hour crowds, including increasing the frequency of buses and trains during these periods. While this does solve the issue, we wonder about the sustainability of increasing the frequency of public transport - particularly buses, when public transportation ridership is going to increase over the years.</p>
+<p>There is presently no analytics application that looks at public transportation commuter patterns across time and space. We hope that creating this application can bring benefits to multiple stakeholders: by allowing commuters to better plan their journeys, workplaces to effectively implement flexible working hours, and the relevant governmental organisations to implement measures to address peak hour crowds.</p>
+<p><br></p>
+</div>
+<div id="approach" class="section level1">
+<h1>Approach</h1>
+<p>Spatial Interaction Models aim to explain commuter flows from the spatial perspective. Commuter flows are regarded as an interaction between origins and destinations.</p>
+<ul>
+<li><strong>Unconstrained Spatial Interaction Model</strong>
+<ul>
+<li>Both Origin and Destinations are unknown and therefore does not have any spatial configurations of origins and destinations</li>
+<li>Ensures that the predicted number of flows is equal to the known flows</li>
+</ul></li>
+<li><strong>Origin Constrained Spatial Interaction Model</strong>
+<ul>
+<li>Here, Origin is known and Destination is unknown</li>
+<li>Deals with outgoing flows in terms of ensuring that the sum of the estimated outflows observed outflows from each origin is the same</li>
+</ul></li>
+<li><strong>Destination Constrained Spatial Interaction Model</strong>
+<ul>
+<li>Here, Destination is known and Origin is unknown</li>
+<li>Deals with incoming flows in terms of ensuring that the sum of the estimated and observed inflows for each destination is the same</li>
+</ul></li>
+<li><strong>Doubly Constrained Spatial Interaction Model</strong>
+<ul>
+<li>Both Origin and Destinations are known</li>
+<li>Ensures that both of these pairs of sums are the same</li>
+</ul></li>
+</ul>
+<p><br>
+<br>
+<br></p>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<strong>Spatial Points</strong>
+<center>
+<img src="img/eda-spatialpoints.jpg" style="width:75.0%" />
+</center>
+<strong>Choropleth Map</strong>
+<center>
+<img src="img/eda-choroplethmap.jpg" style="width:75.0%" />
+</center>
+<strong>Desire Lines</strong>
+<center>
+<img src="img/eda-desirelines.jpg" style="width:75.0%" />
+</center>
+<strong>Spatial Interaction Models</strong>
+<center>
+<img src="img/sim.jpg" style="width:75.0%" />
+</center>
+<p><br>
+<br>
+<br></p>
+</div>
+<div id="future-work" class="section level1">
+<h1>Future Work</h1>
+<ul>
+<li><p><strong>Feature for users to upload their preferred origin and destination of bus trips data</strong>
+Currently, the study focuses on the origin destination of bus trips data in the months of June, July and August in 2021. Hence, the results that users are seeing are only accurate to the aforementioned months. If there are opportunities to enhance this application, giving the users the option to upload their own data would be implemented. This way, users are able to use this application to determine the results of their preferred origin and destination of bus trips datasets.</p></li>
+<li><p><strong>Cover other modes of transport</strong>
+In addition to only focusing on the origin and destination of bus trips data, this study can also be refined to cover other modes of transport like Mass Rapid Transport in Singapore.</p></li>
+</ul>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ul>
+<li>Group08 application. Group08 application - ISSS608-Visual Analytics and Applications. (n.d.). Retrieved November 18, 2021, from <a href="https://wiki.smu.edu.sg/1920t2isss608/Group08_application" class="uri">https://wiki.smu.edu.sg/1920t2isss608/Group08_application</a>.</li>
+<li>Harrison, J. (2020, October 21). Commentary: Singapore’s new headache of fewer public transport commuters. CNA. Retrieved November 18, 2021, from <a href="https://www.channelnewsasia.com/commentary/public-transport-mrt-bus-capacity-breakdown-covid-car-share-968131" class="uri">https://www.channelnewsasia.com/commentary/public-transport-mrt-bus-capacity-breakdown-covid-car-share-968131</a>.</li>
+<li>Lta.gov.sg. LTA. (n.d.). Retrieved November 18, 2021, from <a href="https://www.lta.gov.sg/content/ltagov/en/newsroom/2014/7/3/steps-taken-to-reduce-bus-crowding-during-peak-hours.html" class="uri">https://www.lta.gov.sg/content/ltagov/en/newsroom/2014/7/3/steps-taken-to-reduce-bus-crowding-during-peak-hours.html</a>.</li>
+<li>Morning pre-peak fares. Public Transport Council. (n.d.). Retrieved November 15, 2021, from <a href="https://www.ptc.gov.sg/fare-regulation/bus-rail/morning-pre-peak-fares" class="uri">https://www.ptc.gov.sg/fare-regulation/bus-rail/morning-pre-peak-fares</a>.</li>
+<li>RStudio Shiny Contest 2021 - Commute Explorer. Data Science Academy. (n.d.) Retrieved November 15, 2021, from <a href="https://nz-stefan.shinyapps.io/commute-explorer-2/" class="uri">https://nz-stefan.shinyapps.io/commute-explorer-2/</a></li>
+<li>Spreading out the peak hour MRT crowd. Ministry of Transport. (n.d.). Retrieved November 15, 2021, from <a href="https://www.mot.gov.sg/Transport-Matters/public-transport/Detail/spreading-out-the-peak-hour-mrt-crowd" class="uri">https://www.mot.gov.sg/Transport-Matters/public-transport/Detail/spreading-out-the-peak-hour-mrt-crowd</a>.</li>
+<li>World Leaders in Research-Based User Experience. (April 24, 1994). 10 usability heuristics for user interface design. Nielsen Norman Group. Retrieved November 15, 2021 from <a href="https://www.nngroup.com/articles/ten-usability-heuristics/" class="uri">https://www.nngroup.com/articles/ten-usability-heuristics/</a>.</li>
+<li>Sites.google.com. Desire Lines - Piggraphy Alevel Skills (n.d.). Retrieved November 15, 2021 from <a href="https://sites.google.com/site/piggraphy/home/cartographic-d/desire-lines" class="uri">https://sites.google.com/site/piggraphy/home/cartographic-d/desire-lines</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+</div>
+
+
+
+</body>
+</html>
