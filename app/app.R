@@ -318,7 +318,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          conditionalPanel(
                                              condition = "input.sim_model =='Origin'",
                                              selectInput(inputId = "o_var",
-                                                         label = "Population/Income:",
+                                                         label = "Destination:",
                                                          choices = c("Population" = "D_TOTAL_POP",
                                                                      "Income" = "D_MONTHLY_INCOME"),
                                                          selected = "D_TOTAL_POP")
@@ -327,7 +327,7 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                          conditionalPanel(
                                              condition = "input.sim_model =='Destination'",
                                              selectInput(inputId = "d_var",
-                                                         label = "Population/Income:",
+                                                         label = "Origin:",
                                                          choices = c("Population" = "O_TOTAL_POP",
                                                                      "Income" = "O_MONTHLY_INCOME"),
                                                          selected = "D_TOTAL_POP")
@@ -341,7 +341,29 @@ ui <- fluidPage(theme = shinytheme("simplex"),
                                  mainPanel(
                                      tabsetPanel(
                                          id="SIM_var",
-                                         tabPanel("SIM Scatterplot", plotOutput(outputId = "sim")),
+                                         tabPanel("SIM Scatterplot", plotOutput(outputId = "sim"),
+                                                  br(),
+                                                  h2("What is Spatial Interaction Model?"),
+                                                  h4("Spatial Interaction Models aim to explain commuter flows from the spatial perspective.
+                                                     Commuter flows are regarded as an interaction between origins and destinations."),
+                                                  br(),
+                                                  
+                                                  h3("Unconstrained Spatial Interaction Model"),
+                                                  h4("Both Origin and Destinations are unknown and therefore does not have any spatial configurations of origins and destinations.
+                                                     It ensures that the predicted number of flows is equal to the known flows."),
+                                                  br(),
+                                                  
+                                                  h3("Origin Constrained Spatial Interaction Model"),
+                                                  h4("Here, Origin is known and Destination is unknown. It deals  with outgoing flows in terms of ensuring that the sum of the estimated outflows observed outflows from each origin is the same."),
+                                                  br(),
+                                                  
+                                                  h3("Destination Constrained Spatial Interaction Model"),
+                                                  h4("Here, Destination is known and Origin is unknown. It deals with incoming flows in terms of ensuring that the sum of the estimated and observed inflows for each destination is the same."),
+                                                  br(),
+                                                  
+                                                  h3("Doubly Constrained Spatial Interaction Model"),
+                                                  h4("Both Origin and Destinations are known. It ensures that both of these pairs of sums are the same.")),
+                                         
                                           tabPanel(
                                               "SIM Summary", verbatimTextOutput(outputId = "sim_summary"),
                                           ),
@@ -391,62 +413,7 @@ server <- function(input, output, session){
                           rownames = FALSE)
         }
     })
-    
-    # # Choropleth
-    # output$cmap <- renderPlot({
-    # 
-    #     sub_df <- od_pop_sz %>% filter(DAY_TYPE==input$dt)%>%
-    #         group_by(!!!syms(input$o_d), !!!syms(input$hr_mth))  %>%
-    #         summarise(TOTAL_TRIPS = sum(TRIPS))  %>%
-    #         ungroup()  %>%
-    #         select(input$o_d, input$hr_mth, TOTAL_TRIPS)  %>%
-    #         pivot_wider(names_from=input$hr_mth,  values_from=TOTAL_TRIPS)
-    # 
-    #     # Replace NA values with 0
-    #     sub_df[is.na(sub_df)] = 0
-    # 
-    #     # Get unique values of grp_by value
-    #     unique_grp <- sort(unique(od_pop_sz[[input$hr_mth]]))
-    # 
-    #     # if categorical variable is numeric, change to character only after sorting
-    #     if (input$hr_mth=="TIME_PER_HOUR"){
-    #         unique_grp <- as.character(sort(as.numeric(unique_grp)))
-    #     }
-    # 
-    #     # Perform left join
-    #     mpsz_od_grp <- left_join(mpsz_sf, sub_df, by = c('SUBZONE_C' = input$o_d))
-    # 
-    #     # Create list to store choropleth maps
-    #     cmap_list <- vector(mode = "list", length = length(unique_grp))
-    # 
-    #     for (i in 1:length(unique_grp)) {
-    #         cmap <- tm_shape(mpsz_od_grp) +
-    #             tm_fill(col = unique_grp[[i]],
-    #                     palette = input$colour_cmap,
-    #                     style = input$classification,
-    #                     n = 5) +
-    #             tm_borders(lwd = 0.4,
-    #                        alpha = 0.5) +
-    # 
-    #             tm_layout(panel.show = TRUE,
-    #                       panel.labels = unique_grp[[i]],
-    #                       panel.label.color = 'black',
-    #                       panel.label.size = 1.5,
-    #                       inner.margins = 0,
-    #                       legend.text.size = 1,
-    #                       legend.position = c("left", "bottom"),
-    #                       frame=T) +
-    #             tm_scale_bar(text.size = 1,
-    #                          position="right")  +
-    #             tm_view(set.zoom.limits = c(11,13))
-    # 
-    #         cmap_list[[i]] <- cmap
-    #     }
-    #     ncol_list_c <- c(cmap_list, ncol=3)
-    #     do.call(tmap_arrange, ncol_list_c)
-    # }, height=650, width=1100)
-    
-    
+
     
     # Choropleth
     
